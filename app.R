@@ -24,25 +24,29 @@ ui <- fluidPage(
   titlePanel("NCAA Calcutta Competition"),
   
   # Sidebar with a slider input for number of bins 
-  sidebarLayout(
-    sidebarPanel(
-      textInput("owner","Bid Winner:"),
-      textInput("cost","Cost:"),
-      actionButton("submit","Submit"),
-      h3(textOutput("team")),
-      h3(textOutput("minbid")),
-      h4(textOutput("rank")),
-      h4(textOutput("region")),
-      h2(textOutput("timer")),
-      actionButton("nextteam","Next Team"),
-      actionButton("lastteam","Back")
-    ),
-    
-    # Show a plot of the generated distribution
-    mainPanel(
-      downloadButton('download',"Download the data"),
-      dataTableOutput("table")
+  wellPanel(
+    fluidRow(
+      column(4,
+             textInput("owner","Bid Winner:"),
+             textInput("cost","Cost:"),
+             actionButton("submit","Submit")),
+      column(4,
+             h2(htmlOutput("team")),
+             h3(textOutput("minbid")),
+             h4(textOutput("rank")),
+             h4(textOutput("region"))),
+      column(4,
+             h2(htmlOutput("timer")),
+             actionButton("nextteam","Next Team"),
+             actionButton("lastteam","Back")
+      )
     )
+  ),
+  
+  # Show a plot of the generated distribution
+  fluidRow(
+    downloadButton('download',"Download the data"),
+    dataTableOutput("table")
   )
 )
 
@@ -83,8 +87,9 @@ server <- function(input, output, session) {
     input$nextteam
     input$lastteam
     # tmp <- curr.row()
-    paste0("Current Team: ",
-           teams$team[i]
+    paste0("Current Team: <font color=\"#FF0000\">",
+           teams$team[i],
+           "</font>"
            # as.character(tmp$team)
     )
   })
@@ -93,7 +98,7 @@ server <- function(input, output, session) {
     
     minbid <- ifelse(teams$rank[i]<=2,120,
                      ifelse(teams$rank[i]<=4,90,
-                            ifelse(teams$rank[i]<=12,60,45)
+                            ifelse(teams$rank[i]<=12,60,35)
                      )
     )
     
@@ -123,9 +128,9 @@ server <- function(input, output, session) {
   output$timer <- renderText({
     eventTime <- last.time()
     invalidateLater(1000,session)
-    paste0("Time Remaining: ", 
+    paste0("Time Remaining: <font color=\"#0000FF\">", 
            round(difftime(eventTime, Sys.time(),units = 'secs')),
-           ' seconds'
+           '</font> seconds'
     )
   })
   
