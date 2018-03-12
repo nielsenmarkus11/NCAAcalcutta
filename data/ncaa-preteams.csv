@@ -1,65 +1,65 @@
 rank,region,team
-1,South,South Team 1
-2,South,South Team 2
-3,South,South Team 3
-4,South,South Team 4
-5,South,South Team 5
-6,South,South Team 6
-7,South,South Team 7
-8,South,South Team 8
-9,South,South Team 9
-10,South,South Team 10
-11,South,South Team 11
-12,South,South Team 12
-13,South,South Team 13
-14,South,South Team 14
-15,South,South Team 15
-16,South,South Team 16
-1,East,East Team 1
-2,East,East Team 2
-3,East,East Team 3
-4,East,East Team 4
-5,East,East Team 5
-6,East,East Team 6
-7,East,East Team 7
-8,East,East Team 8
-9,East,East Team 9
-10,East,East Team 10
-11,East,East Team 11
-12,East,East Team 12
-13,East,East Team 13
-14,East,East Team 14
-15,East,East Team 15
-16,East,East Team 16
-1,West,West Team 1
-2,West,West Team 2
-3,West,West Team 3
-4,West,West Team 4
-5,West,West Team 5
-6,West,West Team 6
-7,West,West Team 7
-8,West,West Team 8
-9,West,West Team 9
-10,West,West Team 10
-11,West,West Team 11
-12,West,West Team 12
-13,West,West Team 13
-14,West,West Team 14
-15,West,West Team 15
-16,West,West Team 16
-1,Midwest,Midwest Team 1
-2,Midwest,Midwest Team 2
-3,Midwest,Midwest Team 3
-4,Midwest,Midwest Team 4
-5,Midwest,Midwest Team 5
-6,Midwest,Midwest Team 6
-7,Midwest,Midwest Team 7
-8,Midwest,Midwest Team 8
-9,Midwest,Midwest Team 9
-10,Midwest,Midwest Team 10
-11,Midwest,Midwest Team 11
-12,Midwest,Midwest Team 12
-13,Midwest,Midwest Team 13
-14,Midwest,Midwest Team 14
-15,Midwest,Midwest Team 15
-16,Midwest,Midwest Team 16
+1,South,Virginia
+2,South,Cincinnati
+3,South,Tennessee
+4,South,Arizona
+5,South,Kentucky
+6,South,Miami (Fla.)
+7,South,Nevada
+8,South,Creighton
+9,South,Kansas St.
+10,South,Texas
+11,South,Loyola-Chi.
+12,South,Davidson
+13,South,Buffalo
+14,South,Wright St.
+15,South,Georgia St.
+16,South,UMBC
+1,East,Villanova
+2,East,Purdue
+3,East,Texas Tech
+4,East,Wichita St.
+5,East,W. Virginia
+6,East,Florida
+7,East,Arkansas
+8,East,Va. Tech
+9,East,Alabama
+10,East,Butler
+11,East,STBON/UCLA
+12,East,Murray St.
+13,East,Marshall
+14,East,SF Austin
+15,East,CSFullerton
+16,East,LIU/RAD
+1,West,Xavier
+2,West,N. Carolina
+3,West,Michigan
+4,West,Gonzaga
+5,West,Ohio St.
+6,West,Houston
+7,West,Texas A&M
+8,West,Missouri
+9,West,Florida St.
+10,West,Providence
+11,West,San Diego St.
+12,West,S. Dak. St.
+13,West,UNC-Green.
+14,West,Montana
+15,West,Lipscomb
+16,West,NCCU/TXSO
+1,Midwest,Kansas
+2,Midwest,Duke
+3,Midwest,Michigan St.
+4,Midwest,Auburn
+5,Midwest,Clemson
+6,Midwest,TCU
+7,Midwest,Rhode Island
+8,Midwest,Seton Hall
+9,Midwest,NC State
+10,Midwest,Oklahoma
+11,Midwest,ASU/SYR
+12,Midwest,New Mex. St.
+13,Midwest,Charleston
+14,Midwest,Bucknell
+15,Midwest,Iona
+16,Midwest,Penn
