@@ -1,0 +1,10 @@
+Package: NCAAcalcutta
+Type: Package
+Title: NCAA March Madness Calcutta App
+Version: 1.0
+Date: 2019-03-13
+Author: Mark Nielsen 
+Description: Mix up your office March Madness competition this year by setting up a calcutta auction.  This app will help you keep track of bids in the auction process.
+License: MIT
+Requires: shiny
+RoxygenNote: 6.1.1
