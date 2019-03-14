@@ -17,7 +17,7 @@ start_auction <- function(teams, randomize=TRUE){
   i <- 1
   
   teams.out <- NULL
-  shinyApp(
+  runApp(list(
     # Define UI for application that draws a histogram
     ui = fluidPage(
       
@@ -156,7 +156,8 @@ start_auction <- function(teams, randomize=TRUE){
           write.csv(thedata(), fname)
         }
       )
-    }
+    }),
+    launch.browser = T
   )
   
   
