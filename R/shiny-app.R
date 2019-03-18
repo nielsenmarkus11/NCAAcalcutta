@@ -35,7 +35,8 @@ start_auction <- function(teams, randomize=TRUE){
                  h2(htmlOutput("team")),
                  h3(textOutput("minbid")),
                  h4(textOutput("rank")),
-                 h4(textOutput("region"))),
+                 h4(textOutput("region")),
+                 h4(textOutput("opponent"))),
           column(4,
                  h2(htmlOutput("timer")),
                  actionButton("nextteam","Next Team"),
@@ -121,6 +122,16 @@ start_auction <- function(teams, randomize=TRUE){
         # tmp <- curr.row()
         paste0("Region: ",
                teams$region[i]
+               # as.character(tmp$region)
+        )
+      })
+      
+      output$region <- renderText({
+        input$nextteam
+        input$lastteam
+        # tmp <- curr.row()
+        paste0("Opponent: ",
+               teams$opponent[i]
                # as.character(tmp$region)
         )
       })
