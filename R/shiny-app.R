@@ -126,7 +126,7 @@ start_auction <- function(teams, randomize=TRUE){
         )
       })
       
-      output$region <- renderText({
+      output$opponent <- renderText({
         input$nextteam
         input$lastteam
         # tmp <- curr.row()
