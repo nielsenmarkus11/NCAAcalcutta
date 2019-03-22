@@ -8,5 +8,9 @@ Description: Mix up your office March Madness competition this year by setting u
 License: MIT
 Requires: 
   shiny,
-  iterators
+  iterators,
+  dplyr,
+  shinydashboard,
+  rvest,
+  stringr
 RoxygenNote: 6.1.1

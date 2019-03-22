@@ -18,7 +18,7 @@ scrape.game.results = function(year, league = c('mens', 'womens')) {
   if (year > 2018)
     warning('2018 is the latest season on which the scraper was tested')
   
-  teams = scrape.teams(league)
+  teams = scrape_teams(league)
   
   results = data.frame(game.id = character(0),
                        primary.id = character(0),
@@ -62,7 +62,8 @@ scrape.game.results = function(year, league = c('mens', 'womens')) {
 #' @param league either 'mens' or 'womens'
 #' @return data.frame of team names and ids
 #' @author eshayer
-scrape.teams = function(league) {
+#' @export
+scrape_teams = function(league) {
   `%>%` = dplyr::`%>%`
   
   url = paste0('http://www.espn.com/', league, '-college-basketball/teams')
@@ -79,7 +80,7 @@ scrape.teams = function(league) {
     sapply(identity) %>%
     `[`(6,)
   
-  data.frame(name = name, id = id, stringsAsFactors = FALSE)
+  data.frame(name = cname, id = id, stringsAsFactors = FALSE)
 }
 
 #' Scrape game results for a single team-year combination
@@ -133,12 +134,12 @@ scrape.team.game.results = function(year, team.id, league) {
     rvest::html_text(trim = TRUE) %>%
     is.na %>%
     which 
-
+  
   if (length(skip) > 0) {
     opponent.cells = opponent.cells[-skip]
     result.cells = result.cells[-skip]
   }
-
+  
   won = result.cells %>%
     rvest::html_node('span.fw-bold') %>%
     rvest::html_text(trim = TRUE) == 'W'
@@ -164,8 +165,7 @@ scrape.team.game.results = function(year, team.id, league) {
     rvest::html_text(trim = TRUE)
   location = ifelse(neutral, 'N', ifelse(at.or.vs == 'vs', 'H', 'A'))
   ot = result.cells %>%
-    rvest::html_node('span.ml4') %>%
-    rvest::html_text(trim = TRUE) %>%
+    rvest::html_node('span.ml4')%>%
     strsplit(' ') %>%
     sapply(function(row) row[2]) %>%
     ifelse(is.na(.), '', .)
@@ -189,11 +189,38 @@ scrape.team.game.results = function(year, team.id, league) {
 
 
 
+# Function to clean up scores
+fin_score <- function(x){
+  x %>% 
+    stringr::str_remove('<.*?>') %>% 
+    stringr::str_remove('\\d\\/\\d{2}') %>% 
+    stringr::str_remove('\\d+:\\d{2}') %>% 
+    stringr::str_match("\\d+") %>% 
+    as.numeric()
+}
+
+
+# Function to clean up seeds
+fin_seeds <- function(x){
+  x %>% 
+    stringr::str_extract('\\d+') %>% 
+    as.numeric()
+}
+
+# Function to clean up teams
+fin_teams <- function(x){
+  x %>% 
+    stringr::str_match('\\".*?\\"') %>% 
+    strsplit('/') %>%
+    sapply(function(row) row[8])
+}
 
 
 #' @export
 get_tournament_scores <- function(league = 'mens'){
+  `%>%` = dplyr::`%>%`
   # league = 'mens'
+  
   url = paste0('http://www.espn.com/', league, '-college-basketball/tournament/bracket')
   
   round1 = xml2::read_html(url) %>%
@@ -201,106 +228,133 @@ get_tournament_scores <- function(league = 'mens'){
   
   teams = as.character(round1 %>% 
                          rvest::html_nodes('dt:nth-child(1)'))
-  team1_seed = gsub('<dt>(\\d+?).*?href="(.*?)".*?<br>(\\d+).*?href="(.*?)".*?(/.*?href="(.*?)".*)*','\\1', teams)
-  team1_id = gsub('<dt>(\\d+?).*?href="(.*?)".*?<br>(\\d+).*?href="(.*?)".*?(/.*?href="(.*?)".*)*','\\2', teams) %>% strsplit('/') %>%
-    sapply(function(row) row[8])
-  team2_seed = gsub('<dt>(\\d+?).*?href="(.*?)".*?<br>(\\d+).*?href="(.*?)".*?(/.*?href="(.*?)".*)*','\\3', teams)
-  team2_id = gsub('<dt>(\\d+?).*?href="(.*?)".*?<br>(\\d+).*?href="(.*?)".*?(/.*?href="(.*?)".*)*','\\4', teams) %>% strsplit('/') %>%
-    sapply(function(row) row[8])
-  team3_seed = gsub('<dt>(\\d+?).*?href="(.*?)".*?<br>(\\d+).*?href="(.*?)".*?(/.*?href="(.*?)".*)*','\\3', teams)
-  team3_id = gsub('<dt>(\\d+?).*?href="(.*?)".*?<br>(\\d+).*?href="(.*?)".*?/.*?href="(.*?)".*','\\5', teams) %>% strsplit('/') %>%
-    sapply(function(row) row[8])
-  team3_seed <- ifelse(team3_id==team1_id, NA, team3_seed)
-  team3_id <- ifelse(team3_id==team1_id, NA, team3_id)
+  scores = as.character(round1 %>% 
+                          rvest::html_nodes('.pointer')) 
   
-  bracket_round1 <- data.frame(round = 1, region=rep(c("EAST","WEST","SOUTH","MIDWEST"), each=8),
-                               team1_id, team1_seed, team2_id, team2_seed, team3_id, team3_seed,
-                               stringsAsFactors = FALSE)
+  split_teams <- stringr::str_split_fixed(teams, '<br>', 2)
+  split_scores <- stringr::str_split_fixed(scores, '<br>', 2)
   
-  ## Spaceholder for scores
+  
+  bracket_round1 <- data.frame(round = 1, region=rep(c("East","West","South","Midwest"), each=8),
+                               apply(split_teams, 2, fin_seeds),
+                               apply(split_teams, 2, fin_teams),
+                               apply(split_scores, 2, fin_score))
+  
+
+  ## ROUND 2
   
   round2 = xml2::read_html(url) %>%
     rvest::html_nodes('.round2')
   
   teams2 = as.character(round2 %>% 
                           rvest::html_nodes('dt:nth-child(1)'))
-  team1_seed = gsub('<dt>(\\d+?).*?href="(.*?)".*?<br>(\\d+).*?href="(.*?)".*','\\1', teams2)
-  team1_id = gsub('<dt>(\\d+?).*?href="(.*?)".*?<br>(\\d+).*?href="(.*?)".*','\\2', teams2) %>% strsplit('/') %>%
-    sapply(function(row) row[8])
-  team2_seed = gsub('<dt>(\\d+?).*?href="(.*?)".*?<br>(\\d+).*?href="(.*?)".*','\\3', teams2)
-  team2_id = gsub('<dt>(\\d+?).*?href="(.*?)".*?<br>(\\d+).*?href="(.*?)".*','\\4', teams2) %>% strsplit('/') %>%
-    sapply(function(row) row[8])
+  scores2 = as.character(round2 %>% 
+                           rvest::html_nodes('.pointer')) 
   
-  bracket_round2 <- data.frame(round = 2, region=rep(c("EAST","WEST","SOUTH","MIDWEST"), each=4),
-                               team1_id, team1_seed, team2_id, team2_seed, team3_id=NA, team3_seed=NA,
-                               stringsAsFactors = FALSE)
+  split_teams2 <- stringr::str_split_fixed(teams2, '<br>', 2)
+  split_scores2 <- stringr::str_split_fixed(scores2, '<br>', 2)
   
+  bracket_round2 <- data.frame(round = 2, region=rep(c("East","West","South","Midwest"), each=4),
+                               apply(split_teams2, 2, fin_seeds),
+                               apply(split_teams2, 2, fin_teams),
+                               apply(split_scores2, 2, fin_score))
+  
+  
+  ## ROUND 3
   
   round3 = xml2::read_html(url) %>%
     rvest::html_nodes('.round3')
   
   teams3 = as.character(round3 %>% 
                           rvest::html_nodes('dt:nth-child(1)'))
-  team1_seed = gsub('<dt>(\\d+?).*?href="(.*?)".*?<br>(\\d+).*?href="(.*?)".*','\\1', teams3)
-  team1_id = gsub('<dt>(\\d+?).*?href="(.*?)".*?<br>(\\d+).*?href="(.*?)".*','\\2', teams3) %>% strsplit('/') %>%
-    sapply(function(row) row[8])
-  team2_seed = gsub('<dt>(\\d+?).*?href="(.*?)".*?<br>(\\d+).*?href="(.*?)".*','\\3', teams3)
-  team2_id = gsub('<dt>(\\d+?).*?href="(.*?)".*?<br>(\\d+).*?href="(.*?)".*','\\4', teams3) %>% strsplit('/') %>%
-    sapply(function(row) row[8])
+  scores3 = as.character(round3 %>% 
+                           rvest::html_nodes('.pointer')) 
   
-  bracket_round3 <- data.frame(round = 3, region=rep(c("EAST","WEST","SOUTH","MIDWEST"), each=2),
-                               team1_id, team1_seed, team2_id, team2_seed, team3_id=NA, team3_seed=NA,
-                               stringsAsFactors = FALSE)
+  split_teams3 <- stringr::str_split_fixed(teams3, '<br>', 2)
+  split_scores3 <- stringr::str_split_fixed(scores3, '<br>', 2)
   
+  check_scores <- apply(split_scores3, 2, fin_score)
+  
+  if(length(check_scores)==0) check_scores <- matrix(NA, nrow = 8, ncol = 2)
+  
+  bracket_round3 <- data.frame(round = 3, region=rep(c("East","West","South","Midwest"), each=2),
+                               apply(split_teams3, 2, fin_seeds),
+                               apply(split_teams3, 2, fin_teams),
+                               check_scores)
+  
+  
+  ## ROUND 4
   
   round4 = xml2::read_html(url) %>%
     rvest::html_nodes('.round4')
   
   teams4 = as.character(round4 %>% 
                           rvest::html_nodes('dt:nth-child(1)'))
-  team1_seed = gsub('<dt>(\\d+?).*?href="(.*?)".*?<br>(\\d+).*?href="(.*?)".*','\\1', teams4)
-  team1_id = gsub('<dt>(\\d+?).*?href="(.*?)".*?<br>(\\d+).*?href="(.*?)".*','\\2', teams4) %>% strsplit('/') %>%
-    sapply(function(row) row[8])
-  team2_seed = gsub('<dt>(\\d+?).*?href="(.*?)".*?<br>(\\d+).*?href="(.*?)".*','\\3', teams4)
-  team2_id = gsub('<dt>(\\d+?).*?href="(.*?)".*?<br>(\\d+).*?href="(.*?)".*','\\4', teams4) %>% strsplit('/') %>%
-    sapply(function(row) row[8])
+  scores4 = as.character(round4 %>% 
+                           rvest::html_nodes('.pointer')) 
   
-  bracket_round4 <- data.frame(round = 4, region=rep(c("EAST","WEST","SOUTH","MIDWEST"), each=1),
-                               team1_id, team1_seed, team2_id, team2_seed, team3_id=NA, team3_seed=NA,
-                               stringsAsFactors = FALSE)
+  split_teams4 <- stringr::str_split_fixed(teams4, '<br>', 2)
+  split_scores4 <- stringr::str_split_fixed(scores4, '<br>', 2)
   
+  check_scores <- apply(split_scores4, 2, fin_score)
+  
+  if(length(check_scores)==0) check_scores <- matrix(NA, nrow = 4, ncol = 2)
+  
+  bracket_round4 <- data.frame(round = 4, region=rep(c("East","West","South","Midwest"), each=1),
+                               apply(split_teams4, 2, fin_seeds),
+                               apply(split_teams4, 2, fin_teams),
+                               check_scores)
+  
+  
+  ## ROUND 5
   
   round5 = xml2::read_html(url) %>%
     rvest::html_nodes('.round5')
   
   teams5 = as.character(round5 %>% 
                           rvest::html_nodes('dt:nth-child(1)'))
-  team1_seed = gsub('<dt>(\\d+?).*?href="(.*?)".*?<br>(\\d+).*?href="(.*?)".*','\\1', teams5)
-  team1_id = gsub('<dt>(\\d+?).*?href="(.*?)".*?<br>(\\d+).*?href="(.*?)".*','\\2', teams5) %>% strsplit('/') %>%
-    sapply(function(row) row[8])
-  team2_seed = gsub('<dt>(\\d+?).*?href="(.*?)".*?<br>(\\d+).*?href="(.*?)".*','\\3', teams5)
-  team2_id = gsub('<dt>(\\d+?).*?href="(.*?)".*?<br>(\\d+).*?href="(.*?)".*','\\4', teams5) %>% strsplit('/') %>%
-    sapply(function(row) row[8])
+  scores5 = as.character(round5 %>% 
+                           rvest::html_nodes('.pointer')) 
   
-  bracket_round5 <- data.frame(round = 5, region='FINAL FOUR', team1_id, team1_seed, team2_id, team2_seed, team3_id=NA, team3_seed=NA,
-                               stringsAsFactors = FALSE)
+  split_teams5 <- stringr::str_split_fixed(teams5, '<br>', 2)
+  split_scores5 <- stringr::str_split_fixed(scores5, '<br>', 2)
   
+  check_scores <- apply(split_scores5, 2, fin_score)
+  
+  if(length(check_scores)==0) check_scores <- matrix(NA, nrow = 2, ncol = 2)
+  
+  bracket_round5 <- data.frame(round = 5, region="Final Four",
+                               apply(split_teams5, 2, fin_seeds),
+                               apply(split_teams5, 2, fin_teams),
+                               check_scores)
+  
+  
+  
+  ## ROUND 6
   
   round6 = xml2::read_html(url) %>%
     rvest::html_nodes('.round6')
   
   teams6 = as.character(round6 %>% 
                           rvest::html_nodes('dt:nth-child(1)'))
-  team1_seed = gsub('<dt>(\\d+?).*?href="(.*?)".*?<br>(\\d+).*?href="(.*?)".*','\\1', teams6)
-  team1_id = gsub('<dt>(\\d+?).*?href="(.*?)".*?<br>(\\d+).*?href="(.*?)".*','\\2', teams6) %>% strsplit('/') %>%
-    sapply(function(row) row[8])
-  team2_seed = gsub('<dt>(\\d+?).*?href="(.*?)".*?<br>(\\d+).*?href="(.*?)".*','\\3', teams6)
-  team2_id = gsub('<dt>(\\d+?).*?href="(.*?)".*?<br>(\\d+).*?href="(.*?)".*','\\4', teams6) %>% strsplit('/') %>%
-    sapply(function(row) row[8])
+  scores6 = as.character(round6 %>% 
+                           rvest::html_nodes('.pointer')) 
   
-  bracket_round6 <- data.frame(round = 6, region='FINAL FOUR', team1_id, team1_seed, team2_id, team2_seed, team3_id=NA, team3_seed=NA,
-                               stringsAsFactors = FALSE)
+  split_teams6 <- stringr::str_split_fixed(teams6, '<br>', 2)
+  split_scores6 <- stringr::str_split_fixed(scores6, '<br>', 2)
   
+  check_scores <- apply(split_scores6, 2, fin_score)
+  
+  if(length(check_scores)==0) check_scores <- matrix(NA, nrow = 1, ncol = 2)
+  
+  bracket_round6 <- data.frame(round = 6, region="Final Four",
+                               matrix(apply(split_teams6, 2, fin_seeds), 1, 2),
+                               matrix(apply(split_teams6, 2, fin_teams), 1, 2),
+                               check_scores)
+  
+  
+  
+  ## Append all rounds
   bracket <- rbind(bracket_round1,
                    bracket_round2,
                    bracket_round3,
@@ -308,6 +362,7 @@ get_tournament_scores <- function(league = 'mens'){
                    bracket_round5,
                    bracket_round6
   )
+  names(bracket) <- c("round", "region", "team1_seed", "team2_seed", "team1_id", "team2_id", "team1_score", "team2_score")
   
   return(bracket)
 }
