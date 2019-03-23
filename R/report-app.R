@@ -45,14 +45,20 @@ results_app <- function(teams, starting_points, randomize=TRUE){
           # Standings tab content
           tabItem(tabName = "standings",
                   fluidRow(
-                    DT::dataTableOutput("ranking")
+                    column(12,
+                           box(title = 'Current Standings', status = "primary", solidHeader = TRUE,
+                             DT::dataTableOutput("ranking"),
+                             width = 12
+                           )
+                    )
+                    
                   )
           ),
           
           # Graphs tab content
           tabItem(tabName = "graphs",
                   box(title = 'Current Points', status = "primary", solidHeader = TRUE,
-                    plotOutput("total_points", height = 800)
+                      plotOutput("total_points", height = 800)
                   )
           ),
           
@@ -86,7 +92,22 @@ results_app <- function(teams, starting_points, randomize=TRUE){
         row.names(total_points) = total_points$owner
         total_points$owner <- NULL
         
-        return(total_points %>% t)
+        new_tp <- total_points %>% t
+        row.names(new_tp) <- row.names(new_tp) %>% 
+          stringr::str_replace('\\_',' ') %>%
+          stringr::str_to_title()
+          
+        
+        datatable(new_tp, options = list(
+          initComplete = JS(
+            "function(settings, json) {",
+            "$(this.api().table().header()).css({'background-color': '#000', 'color': '#fff'});",
+            "}"), 
+          searching = FALSE,
+          ordering = FALSE,
+          paging = FALSE,
+          info = FALSE
+        ))
       })
       
       output$total_points <- renderPlot({
@@ -104,7 +125,7 @@ results_app <- function(teams, starting_points, randomize=TRUE){
           summarise(total_points = sum(score)) %>% 
           mutate(type = 'Points Scored') 
         
-
+        
         combined_points <- left_over %>% 
           bind_rows(points_scored)
         
