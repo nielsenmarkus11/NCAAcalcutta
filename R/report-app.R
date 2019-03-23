@@ -1,9 +1,6 @@
 #' @export
 results_app <- function(teams, starting_points, randomize=TRUE){
   # starting_points <- 1175
-  require('shiny')
-  require('shinydashboard')
-  require('ggplot2')
   
   scores <- NCAAcalcutta::get_tournament_scores()
   
@@ -16,6 +13,20 @@ results_app <- function(teams, starting_points, randomize=TRUE){
     left_join(teams, by=c("rank","region"))
   
   append_scores <- t1_scores %>% bind_rows(t2_scores)  
+  scores_completed <- append_scores %>% 
+    group_by(round) %>% 
+    summarize(cnt = n(), scores=sum(!is.na(score)))
+  
+  current_round <- min(scores_completed$round[scores_completed$scores<scores_completed$cnt])
+  
+  eliminated <- append_scores %>% 
+    filter(!is.na(team)) %>% 
+    group_by(team) %>% 
+    summarise(eliminated = if_else(max(round) < current_round, TRUE, FALSE),
+              round_exited = if_else(max(round) < current_round, max(round), as.numeric(NA)))
+  
+  final_data <- append_scores %>% left_join(eliminated, by = c("team"))
+  
   
   shinyApp(
     # Define UI for application that draws a histogram
@@ -40,7 +51,7 @@ results_app <- function(teams, starting_points, randomize=TRUE){
           
           # Graphs tab content
           tabItem(tabName = "graphs",
-                  fluidRow(
+                  box(title = 'Current Points', status = "primary", solidHeader = TRUE,
                     plotOutput("total_points", height = 800)
                   )
           ),
@@ -60,15 +71,20 @@ results_app <- function(teams, starting_points, randomize=TRUE){
     server = function(input, output, session) {
       
       output$ranking <- DT::renderDataTable({
-        total_points <- append_scores %>% 
+        total_points <- final_data %>% 
           filter(round==1) %>% 
           group_by(owner) %>% 
           summarise(spent = sum(bid),
                     left_over = starting_points - sum(bid),
-                    points_scored = sum(score)) %>% 
+                    points_scored = sum(score),
+                    teams_purchased = n(),
+                    teams_remaining = n() - sum(eliminated, na.rm=TRUE)) %>% 
           mutate(left_over = if_else(left_over < 0, 10*left_over, 1*left_over),
                  final_score = left_over + points_scored,
-                 rank = rank(-final_score, ties.method = 'min'))
+                 rank = rank(-final_score, ties.method = 'min')) %>% data.frame
+        
+        row.names(total_points) = total_points$owner
+        total_points$owner <- NULL
         
         return(total_points %>% t)
       })
@@ -76,13 +92,13 @@ results_app <- function(teams, starting_points, randomize=TRUE){
       output$total_points <- renderPlot({
         
         # Get remaining points
-        left_over <- append_scores %>% 
+        left_over <- final_data %>% 
           filter(round==1) %>% 
           group_by(owner) %>% 
           summarise(total_points = starting_points - sum(bid)) %>% 
           mutate(type = 'Left Over', total_points = if_else(total_points < 0, 10*total_points, 1*total_points))
         
-        points_scored <- append_scores %>% 
+        points_scored <- final_data %>% 
           filter(!is.na(score)) %>% 
           group_by(owner) %>% 
           summarise(total_points = sum(score)) %>% 

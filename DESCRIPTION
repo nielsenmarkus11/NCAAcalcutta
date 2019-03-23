@@ -13,5 +13,6 @@ Depends:
   shinydashboard,
   rvest,
   stringr, 
-  DT
+  DT,
+  ggplot2
 RoxygenNote: 6.1.1
