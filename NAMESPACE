@@ -3,6 +3,7 @@
 export(fin_score)
 export(fin_seeds)
 export(fin_teams)
+export(fin_win)
 export(get_tournament_scores)
 export(import_teams)
 export(randomize_teams)

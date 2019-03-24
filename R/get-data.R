@@ -200,6 +200,12 @@ fin_score <- function(x){
     as.numeric()
 }
 
+# Function to find winner
+#' @export
+fin_win <- function(x){
+  ifelse(!is.na(stringr::str_locate(x, '<b>')[,1]), 'W', as.character(NA))
+}
+
 
 # Function to clean up seeds
 #' @export
@@ -241,7 +247,8 @@ get_tournament_scores <- function(league = 'mens'){
   bracket_round1 <- data.frame(round = 1, region=rep(c("East","West","South","Midwest"), each=8),
                                apply(split_teams, 2, fin_seeds),
                                apply(split_teams, 2, fin_teams),
-                               apply(split_scores, 2, fin_score))
+                               apply(split_scores, 2, fin_score),
+                               apply(split_scores, 2, fin_win))
   
 
   ## ROUND 2
@@ -262,10 +269,15 @@ get_tournament_scores <- function(league = 'mens'){
   
   if(is.null(dim(check_scores)) || dim(check_scores)[1] < 16) check_scores <- matrix(NA, nrow = 16, ncol = 2)
   
+  check_win <- apply(split_scores2, 2, fin_win)
+  
+  if(is.null(dim(check_win)) || dim(check_win)[1] < 16) check_win <- matrix(NA, nrow = 16, ncol = 2)
+  
   bracket_round2 <- data.frame(round = 2, region=rep(c("East","West","South","Midwest"), each=4),
                                apply(split_teams2, 2, fin_seeds),
                                apply(split_teams2, 2, fin_teams),
-                               check_scores)
+                               check_scores,
+                               check_win)
   
   
   ## ROUND 3
@@ -285,10 +297,15 @@ get_tournament_scores <- function(league = 'mens'){
   
   if(is.null(dim(check_scores)) || dim(check_scores)[1] < 8) check_scores <- matrix(NA, nrow = 8, ncol = 2)
   
+  check_win <- apply(split_scores3, 2, fin_win)
+  
+  if(is.null(dim(check_win)) || dim(check_win)[1] < 8) check_win <- matrix(NA, nrow = 8, ncol = 2)
+  
   bracket_round3 <- data.frame(round = 3, region=rep(c("East","West","South","Midwest"), each=2),
                                apply(split_teams3, 2, fin_seeds),
                                apply(split_teams3, 2, fin_teams),
-                               check_scores)
+                               check_scores,
+                               check_win)
   
   
   ## ROUND 4
@@ -308,10 +325,15 @@ get_tournament_scores <- function(league = 'mens'){
   
   if(is.null(dim(check_scores)) || dim(check_scores)[1] < 4) check_scores <- matrix(NA, nrow = 4, ncol = 2)
   
+  check_win <- apply(split_scores4, 2, fin_win)
+  
+  if(is.null(dim(check_win)) || dim(check_win)[1] < 4) check_win <- matrix(NA, nrow = 4, ncol = 2)
+  
   bracket_round4 <- data.frame(round = 4, region=rep(c("East","West","South","Midwest"), each=1),
                                apply(split_teams4, 2, fin_seeds),
                                apply(split_teams4, 2, fin_teams),
-                               check_scores)
+                               check_scores,
+                               check_win)
   
   
   ## ROUND 5
@@ -331,10 +353,15 @@ get_tournament_scores <- function(league = 'mens'){
   
   if(is.null(dim(check_scores)) || dim(check_scores)[1] < 2) check_scores <- matrix(NA, nrow = 2, ncol = 2)
   
+  check_win <- apply(split_scores5, 2, fin_win)
+  
+  if(is.null(dim(check_win)) || dim(check_win)[1] < 2) check_win <- matrix(NA, nrow = 2, ncol = 2)
+  
   bracket_round5 <- data.frame(round = 5, region="Final Four",
                                apply(split_teams5, 2, fin_seeds),
                                apply(split_teams5, 2, fin_teams),
-                               check_scores)
+                               check_scores,
+                               check_win)
   
   
   
@@ -355,10 +382,15 @@ get_tournament_scores <- function(league = 'mens'){
   
   if(is.null(dim(check_scores)) || dim(check_scores)[1] < 1) check_scores <- matrix(NA, nrow = 1, ncol = 2)
   
+  check_win <- apply(split_scores6, 2, fin_win)
+  
+  if(is.null(dim(check_win)) || dim(check_win)[1] < 1) check_win <- matrix(NA, nrow = 1, ncol = 2)
+  
   bracket_round6 <- data.frame(round = 6, region="Final Four",
                                matrix(apply(split_teams6, 2, fin_seeds), 1, 2),
                                matrix(apply(split_teams6, 2, fin_teams), 1, 2),
-                               check_scores)
+                               check_scores,
+                               check_win)
   
   
   
@@ -370,7 +402,8 @@ get_tournament_scores <- function(league = 'mens'){
                    bracket_round5,
                    bracket_round6
   )
-  names(bracket) <- c("round", "region", "team1_seed", "team2_seed", "team1_id", "team2_id", "team1_score", "team2_score")
+  names(bracket) <- c("round", "region", "team1_seed", "team2_seed", "team1_id", "team2_id",
+                      "team1_score", "team2_score", "team1_win", "team2_win")
   
   return(bracket)
 }
