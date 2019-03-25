@@ -1,0 +1,26 @@
+---
+runtime: shiny
+output: html_document
+---
+
+<style type="text/css">
+.main-container {
+  max-width: inherit;
+  margin-left: auto;
+  margin-right: auto;
+  height: 1600px;
+}
+</style>
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(NCAAcalcutta)
+library(dplyr)
+# Run the report
+teams <- read.csv("~/../Desktop/teams-out-home.csv")
+teams <- teams %>% 
+  select(-X, -group, -opponent) %>% 
+  filter(!is.na(bid))
+
+
+results_app(teams, 1175)
+```
