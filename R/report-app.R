@@ -6,14 +6,15 @@ results_app <- function(teams, starting_points, randomize=TRUE){
     # Define UI for application that draws a histogram
     ui = dashboardPage(
       dashboardHeader(title = 'NCAA Calcutta'),
-      dashboardSidebar(
-        sidebarMenu(
-          menuItem("Standings", tabName = "standings", icon = icon("dashboard")),
-          menuItem("Graphs", tabName = "graphs", icon = icon("th")),
-          menuItem("Scores", tabName = "scores", icon = icon("th")),
-          menuItem("Owners", tabName = "owners", icon = icon("th"))
-        ),
-        actionButton("goButton", "Refresh Data")
+      dashboardSidebar(tags$head(tags$style(HTML("tbody > tr:last-child { 
+                                               font-weight: bold; 
+                                             }"))),
+                       sidebarMenu(
+                         menuItem("Standings", tabName = "standings", icon = icon("trophy")),
+                         menuItem("Graphs", tabName = "graphs", icon = icon("chart-bar")),
+                         menuItem("Teams by Owner", tabName = "owners", icon = icon("basketball-ball"))
+                       ),
+                       actionButton("goButton", "Refresh Data")
       ),
       dashboardBody(
         tabItems(
@@ -26,25 +27,39 @@ results_app <- function(teams, starting_points, randomize=TRUE){
                                width = 12
                            )
                     )
-                    
                   )
           ),
           
           # Graphs tab content
           tabItem(tabName = "graphs",
                   box(title = 'Current Points', status = "primary", solidHeader = TRUE,
-                      plotOutput("total_points", height = 800)
+                      plotOutput("total_points"),
+                      width = 12
                   )
-          ),
-          
-          # Scores tab content
-          tabItem(tabName = "scores",
-                  h2("Widgets tab content")
           ),
           
           # Owners tab content
           tabItem(tabName = "owners",
-                  h2("Widgets tab content")
+                  fluidRow(
+                    column(12,
+                           box(
+                             title = "Inputs", status = "warning", solidHeader = TRUE,
+                             uiOutput("select_owner"),
+                             uiOutput("owner_remaining"),
+                             uiOutput("owner_total"),
+                             uiOutput("owner_rank"),
+                             width = 12
+                           )
+                    )
+                  ),
+                  fluidRow(
+                    column(12,
+                           box(title = 'Teams by Owner', status = "primary", solidHeader = TRUE,
+                               DT::dataTableOutput("teams_points"),
+                               width = 12
+                           )
+                    )
+                  )
           )
         )
       )
@@ -86,7 +101,13 @@ results_app <- function(teams, starting_points, randomize=TRUE){
         return(total_points)
       })
       
-      output$ranking <- DT::renderDataTable({
+      output$select_owner <- renderUI({
+        total_points <- total_points()
+        
+        selectizeInput('team_owner', "Select Owner:", unique(total_points$owner))
+      })
+      
+      player_points <- reactive({
         total_points <- total_points()
         
         player_points <- total_points %>% 
@@ -103,6 +124,11 @@ results_app <- function(teams, starting_points, randomize=TRUE){
         
         row.names(player_points) = player_points$owner
         player_points$owner <- NULL
+        return(player_points)
+      })
+      
+      output$ranking <- DT::renderDataTable({
+        player_points <- player_points()
         
         new_tp <- player_points %>% t
         row.names(new_tp) <- row.names(new_tp) %>% 
@@ -142,6 +168,68 @@ results_app <- function(teams, starting_points, randomize=TRUE){
           bind_rows(points_scored)
         
         ggplot(combined_points, aes(x=owner, y=total_points, fill=type)) + geom_bar(stat="identity")
+      })
+      
+      output$owner_remaining <- renderUI({
+        # team_owner = "Mark"
+        team_owner <- input$team_owner
+        player_points <- isolate(player_points())
+        
+        HTML(paste0('<b>Points Remaining: ',player_points[team_owner,"left_over"],'</b>'))
+        
+      })
+      
+      output$owner_total <- renderUI({
+        # team_owner = "Mark"
+        team_owner <- input$team_owner
+        player_points <- isolate(player_points())
+        
+        HTML(paste0('<h4><b>Total Score: ',player_points[team_owner,"final_score"],'</b></h4>'))
+        
+      })
+      
+      output$owner_rank <- renderUI({
+        # team_owner = "Mark"
+        team_owner <- input$team_owner
+        player_points <- isolate(player_points())
+        
+        HTML(paste0('<h4><b>Rank: ',player_points[team_owner,"rank"],'</b></h4>'))
+        
+      })
+      
+      output$teams_points <- DT::renderDataTable({
+        # team_owner = "Mark"
+        team_owner <- input$team_owner
+        total_points <- total_points()
+        
+        owner_teams <- total_points %>% 
+          ungroup() %>% 
+          filter(owner == team_owner) %>% 
+          select(rank, team, points_paid=bid, points_earned=score, realized_loss_or_gain) %>% 
+          arrange(rank, points_paid)  %>%
+          janitor::adorn_totals("row") %>% 
+          data.frame
+        
+        names(owner_teams) <- names(owner_teams) %>% 
+          stringr::str_replace_all('\\_',' ') %>%
+          stringr::str_to_title()
+        
+        datatable(owner_teams, options = list(
+          initComplete = JS(
+            "function(settings, json) {",
+            "$(this.api().table().header()).css({'background-color': '#000', 'color': '#fff'});",
+            "}"), 
+          searching = FALSE,
+          ordering = FALSE,
+          paging = FALSE,
+          info = FALSE
+        ),
+        rownames= FALSE) %>%
+          formatStyle(
+            0,
+            target = "row",
+            fontWeight = styleEqual(1, "bold")
+          )
       })
     }
   )

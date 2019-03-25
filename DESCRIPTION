@@ -14,5 +14,6 @@ Depends:
   rvest,
   stringr, 
   DT,
-  ggplot2
+  ggplot2,
+  janitor
 RoxygenNote: 6.1.1
