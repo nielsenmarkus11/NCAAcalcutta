@@ -93,11 +93,11 @@ results_app <- function(teams, starting_points, randomize=TRUE){
           select(-rank, -region)
         
         t1_scores <- scores %>% 
-          select(round, region, rank = team1_seed, team_id = team1_id, score = team1_score, eliminated = team1_elim) %>% 
+          select(round, region, rank = team1_seed, team_id = team1_id, score = team1_score, eliminated = team1_elim, win=team1_win) %>% 
           left_join(teams_with_id, by=c("team_id"))
         
         t2_scores <- scores %>% 
-          select(round, region, rank = team2_seed, team_id = team2_id, score = team2_score, eliminated = team2_elim) %>% 
+          select(round, region, rank = team2_seed, team_id = team2_id, score = team2_score, eliminated = team2_elim, win=team2_win) %>% 
           left_join(teams_with_id, by=c("team_id"))
         
         append_scores <- t1_scores %>% bind_rows(t2_scores)  
@@ -112,7 +112,7 @@ results_app <- function(teams, starting_points, randomize=TRUE){
         
         total_points <- final_data %>% 
           group_by(rank, team_id, team, owner, bid) %>% 
-          summarise(score = sum(score, na.rm = TRUE), eliminated = !all(!eliminated)) %>% 
+          summarise(score = sum(if_else(round==6 & win=='W', score+100, score), na.rm = TRUE), eliminated = !all(!eliminated)) %>% 
           mutate(realized_loss_or_gain = if_else(eliminated, score - bid, as.numeric(NA)))
         return(total_points)
       })
@@ -166,17 +166,19 @@ results_app <- function(teams, starting_points, randomize=TRUE){
       
       output$total_points <- renderPlot({
         
+        final_data <- final_data()
+        
         # Get remaining points
-        left_over <- final_data() %>% 
+        left_over <- final_data %>% 
           filter(round==1) %>% 
           group_by(owner) %>% 
           summarise(total_points = starting_points - sum(bid)) %>% 
           mutate(type = 'Left Over', total_points = if_else(total_points < 0, 10*total_points, 1*total_points))
         
-        points_scored <- final_data() %>% 
+        points_scored <- final_data %>% 
           filter(!is.na(score)) %>% 
           group_by(owner) %>% 
-          summarise(total_points = sum(score)) %>% 
+          summarise(total_points = sum(if_else(round==6 & win=='W', score+100, score))) %>% 
           mutate(type = 'Points Scored') 
         
         
