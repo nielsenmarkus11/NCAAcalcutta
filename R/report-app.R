@@ -100,9 +100,16 @@ results_app <- function(teams, starting_points, randomize=TRUE){
           select(round, region, rank = team2_seed, team_id = team2_id, score = team2_score, eliminated = team2_elim, win=team2_win) %>% 
           left_join(teams_with_id, by=c("team_id"))
         
+        
         append_scores <- t1_scores %>% bind_rows(t2_scores)  
         
+        
+        winning_team <- append_scores %>% 
+          filter(round==6, win=='W') %>% 
+          mutate(round=7, score=100, eliminated=TRUE)
+        
         final_data <- append_scores %>% 
+          bind_rows(winning_team) %>% 
           mutate(round_exited = if_else(eliminated, round, as.numeric(NA)))
         return(final_data)
       })
@@ -112,7 +119,7 @@ results_app <- function(teams, starting_points, randomize=TRUE){
         
         total_points <- final_data %>% 
           group_by(rank, team_id, team, owner, bid) %>% 
-          summarise(score = sum(if_else(round==6 & win=='W', score+100, score), na.rm = TRUE), eliminated = !all(!eliminated)) %>% 
+          summarise(score = sum(score, na.rm = TRUE), eliminated = !all(!eliminated)) %>% 
           mutate(realized_loss_or_gain = if_else(eliminated, score - bid, as.numeric(NA)))
         return(total_points)
       })
@@ -178,7 +185,7 @@ results_app <- function(teams, starting_points, randomize=TRUE){
         points_scored <- final_data %>% 
           filter(!is.na(score)) %>% 
           group_by(owner) %>% 
-          summarise(total_points = sum(if_else(round==6 & win=='W', score+100, score))) %>% 
+          summarise(total_points = sum(score)) %>% 
           mutate(type = 'Points Scored') 
         
         

@@ -380,7 +380,7 @@ get_tournament_scores <- function(league = 'mens'){
   split_teams6 <- stringr::str_split_fixed(teams6, '<br>', 2)
   split_scores6 <- stringr::str_split_fixed(scores6, '<br>', 2)
   
-  check_scores <- apply(split_scores6, 2, fin_score)
+  check_scores <- apply(split_scores6, 2, fin_score) %>% t
   
   if(is.null(dim(check_scores)) || dim(check_scores)[1] < 1) check_scores <- matrix(NA, nrow = 1, ncol = 2)
   
