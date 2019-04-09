@@ -32,9 +32,19 @@ results_app <- function(teams, starting_points, randomize=TRUE){
           
           # Graphs tab content
           tabItem(tabName = "graphs",
-                  box(title = 'Current Points', status = "primary", solidHeader = TRUE,
-                      plotOutput("total_points"),
-                      width = 12
+                  fluidRow(
+                    box(title = 'Current Points', status = "primary", solidHeader = TRUE,
+                        plotOutput("total_points"),
+                        width = 12
+                    ),
+                    box(title = 'Points Paid by Rank', status = "primary", solidHeader = TRUE,
+                        plotOutput("paid_by_seed"),
+                        width = 12
+                    ),
+                    box(title = 'Points Realized by Team', status = "primary", solidHeader = TRUE,
+                        plotOutput("realized_return"),
+                        width = 12
+                    )
                   )
           ),
           
@@ -192,7 +202,47 @@ results_app <- function(teams, starting_points, randomize=TRUE){
         combined_points <- left_over %>% 
           bind_rows(points_scored)
         
-        ggplot(combined_points, aes(x=owner, y=total_points, fill=type)) + geom_bar(stat="identity")
+        ggplot(combined_points, aes(x=owner, y=total_points, fill=type)) + 
+          geom_bar(stat="identity") +
+          theme(legend.position = "bottom") +
+          labs(x = "", y = "Total Points", fill = "")
+      })
+      
+      
+      output$paid_by_seed <- renderPlot({
+        total_points <- total_points()
+        
+        paid_by_seed <- total_points %>% 
+          group_by(rank) %>% 
+          summarise(bid = mean(bid))
+        
+        ggplot() +
+          geom_line(aes(x=rank, y=bid), data = paid_by_seed, color = "black", size = 2) +
+          geom_point(aes(x=rank, y=bid), data = total_points, color="blue", size = 2) +
+          labs(x = "Rank", y = "Bid")
+        
+      })
+      
+      output$realized_return <- renderPlot({
+        total_points <- total_points()
+        
+        bids <- total_points %>% 
+          mutate(bid = -bid, type="Bid") %>% 
+          select(rank, team, points=bid, type)
+        
+        realized_return <- total_points %>% 
+          mutate(type = "Points Scored") %>% 
+          select(rank, team, points=score, type)
+        
+        combo <- bids %>% bind_rows(realized_return)
+        
+        ggplot(combo) +
+          geom_bar(aes(x=reorder(abbreviate(team, 12), rank), y=points, fill = type), stat = "identity", show.legend = F) +
+          geom_line(aes(x=reorder(abbreviate(team, 12), rank), y=realized_loss_or_gain, group = 1), data = total_points, size = 1) +
+          theme(axis.text.x=element_text(angle=90,hjust=1,vjust = 0.5)) + 
+          facet_grid(.~rank, scales = "free_x") +
+          labs(x = "", y = "Points")
+        
       })
       
       output$owner_remaining <- renderUI({
