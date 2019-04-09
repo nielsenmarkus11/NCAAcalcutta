@@ -6,6 +6,7 @@
 #' @export
 #' @author eshayer
 scrape.game.results = function(year, league = c('mens', 'womens')) {
+  # year = 2019; league = 'mens'
   league = match.arg(league)
   `%>%` = dplyr::`%>%`
   
@@ -109,7 +110,7 @@ scrape.team.game.results = function(year, team.id, league) {
     which
   
   if (length(tourney) > 0) {
-    rows = rows[1:(min(tourney) - 1)]
+    rows = rows[(max(tourney) + 1):length(rows)]
   }
   
   opponent.cells = rows %>%
@@ -165,7 +166,8 @@ scrape.team.game.results = function(year, team.id, league) {
     rvest::html_text(trim = TRUE)
   location = ifelse(neutral, 'N', ifelse(at.or.vs == 'vs', 'H', 'A'))
   ot = result.cells %>%
-    rvest::html_node('span.ml4')%>%
+    rvest::html_node('span.ml4') %>%
+    rvest::html_text(trim = TRUE) %>%
     strsplit(' ') %>%
     sapply(function(row) row[2]) %>%
     ifelse(is.na(.), '', .)

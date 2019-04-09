@@ -76,13 +76,29 @@ results_app <- function(teams, starting_points, randomize=TRUE){
       
       final_data <- reactive({
         scores <- scores()
+        
+        scores_id1 <- scores %>% 
+          filter(round==1) %>% 
+          select(region, rank=team1_seed, team_id=team1_id)
+        
+        scores_id2 <- scores %>% 
+          filter(round==1) %>% 
+          select(region, rank=team2_seed, team_id=team2_id)
+        
+        scores_id <- scores_id1 %>% bind_rows(scores_id2)
+        
+        
+        teams_with_id <- teams %>% 
+          left_join(scores_id, by=c("rank","region")) %>% 
+          select(-rank, -region)
+        
         t1_scores <- scores %>% 
           select(round, region, rank = team1_seed, team_id = team1_id, score = team1_score, eliminated = team1_elim) %>% 
-          left_join(teams, by=c("rank","region"))
+          left_join(teams_with_id, by=c("team_id"))
         
         t2_scores <- scores %>% 
           select(round, region, rank = team2_seed, team_id = team2_id, score = team2_score, eliminated = team2_elim) %>% 
-          left_join(teams, by=c("rank","region"))
+          left_join(teams_with_id, by=c("team_id"))
         
         append_scores <- t1_scores %>% bind_rows(t2_scores)  
         
@@ -95,7 +111,7 @@ results_app <- function(teams, starting_points, randomize=TRUE){
         final_data <- final_data()
         
         total_points <- final_data %>% 
-          group_by(rank, region, team_id, team, owner, bid) %>% 
+          group_by(rank, team_id, team, owner, bid) %>% 
           summarise(score = sum(score, na.rm = TRUE), eliminated = !all(!eliminated)) %>% 
           mutate(realized_loss_or_gain = if_else(eliminated, score - bid, as.numeric(NA)))
         return(total_points)
