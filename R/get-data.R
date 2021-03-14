@@ -597,7 +597,7 @@ get_tournament_scores <- function(league = 'mens', year = NULL){
       substring(1,1) %>% 
       as.numeric()
     
-    bracket_round5 <- data.frame(round = rep(round, each=2),
+    bracket_round5 <- data.frame(round = rep(round-1, each=2),
                                  region="Final Four",
                                  game = rep(1:3, each=2),
                                  team_nbr = rep(1:2, 3),
