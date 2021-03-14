@@ -463,7 +463,7 @@ get_tournament_scores <- function(league = 'mens', year = NULL){
       as.numeric()
     
     bracket_round1 <- data.frame(round = 1,
-                                 region=rep(c("East","West","South","Midwest"), each=16),
+                                 region=rep(c("East","South","West","Midwest"), each=16),
                                  game = rep(1:32, each=2),
                                  team_nbr = rep(1:2, 32),
                                  seed=seeds,
@@ -497,7 +497,7 @@ get_tournament_scores <- function(league = 'mens', year = NULL){
       as.numeric()
     
     bracket_round2 <- data.frame(round = 2,
-                                 region=rep(c("East","West","South","Midwest"), each=8),
+                                 region=rep(c("East","South","West","Midwest"), each=8),
                                  game = rep(1:16, each=2),
                                  team_nbr = rep(1:2, 16),
                                  seed=seeds,
@@ -529,7 +529,7 @@ get_tournament_scores <- function(league = 'mens', year = NULL){
       as.numeric()
     
     bracket_round3 <- data.frame(round = 3,
-                                 region=rep(c("East","West","South","Midwest"), each=4),
+                                 region=rep(c("East","South","West","Midwest"), each=4),
                                  game = rep(1:8, each=2),
                                  team_nbr = rep(1:2, 8),
                                  seed=seeds,
@@ -561,7 +561,7 @@ get_tournament_scores <- function(league = 'mens', year = NULL){
       as.numeric()
     
     bracket_round4 <- data.frame(round = 4,
-                                 region=rep(c("East","West","South","Midwest"), each=2),
+                                 region=rep(c("East","South","West","Midwest"), each=2),
                                  game = rep(1:4, each=2),
                                  team_nbr = rep(1:2, 4),
                                  seed=seeds,
