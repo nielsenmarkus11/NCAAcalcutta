@@ -1,7 +1,7 @@
 Package: NCAAcalcutta
 Type: Package
 Title: NCAA March Madness Calcutta App
-Version: 1.0
+Version: 1.1
 Date: 2019-03-13
 Author: Mark Nielsen 
 Maintainer: Mark Nielsen <mn9999999999@gmail.com>
@@ -16,5 +16,6 @@ Imports:
   stringr, 
   DT,
   ggplot2,
-  janitor
+  janitor,
+  plotly
 RoxygenNote: 7.1.1

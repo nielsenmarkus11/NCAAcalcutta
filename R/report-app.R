@@ -1,8 +1,12 @@
 #' @param auction_results 
 #' @param starting_points Starting points given to each member for the
 #'
-#' @importFrom DT datatable JS formatStyle styleEqual
+#' @importFrom DT datatable JS formatStyle styleEqual dataTableOutput renderDataTable
 #' @import ggplot2
+#' @import plotly
+#' @import shinydashboard
+#' @import shiny
+#' @import dplyr
 #'
 #' @export
 results_app <- function(auction_results, starting_points, year=NULL){
@@ -40,15 +44,15 @@ results_app <- function(auction_results, starting_points, year=NULL){
           tabItem(tabName = "graphs",
                   fluidRow(
                     box(title = 'Current Points', status = "primary", solidHeader = TRUE,
-                        plotOutput("total_points"),
+                        plotlyOutput("total_points"),
                         width = 12
                     ),
                     box(title = 'Points Paid by Rank', status = "primary", solidHeader = TRUE,
-                        plotOutput("paid_by_seed"),
+                        plotlyOutput("paid_by_seed"),
                         width = 12
                     ),
                     box(title = 'Points Realized by Team', status = "primary", solidHeader = TRUE,
-                        plotOutput("realized_return"),
+                        plotlyOutput("realized_return"),
                         width = 12
                     )
                   )
@@ -187,7 +191,7 @@ results_app <- function(auction_results, starting_points, year=NULL){
         ))
       })
       
-      output$total_points <- renderPlot({
+      output$total_points <- renderPlotly({
         
         final_data <- final_data()
         
@@ -208,28 +212,30 @@ results_app <- function(auction_results, starting_points, year=NULL){
         combined_points <- left_over %>% 
           bind_rows(points_scored)
         
-        ggplot(combined_points, aes(x=owner, y=total_points, fill=type)) + 
+        g <- ggplot(combined_points, aes(x=owner, y=total_points, fill=type)) + 
           geom_bar(stat="identity") +
           theme(legend.position = "bottom") +
           labs(x = "", y = "Total Points", fill = "")
+        ggplotly(g)
       })
       
       
-      output$paid_by_seed <- renderPlot({
+      output$paid_by_seed <- renderPlotly({
         total_points <- total_points()
         
         paid_by_seed <- total_points %>% 
           group_by(rank) %>% 
           summarise(bid = mean(bid))
         
-        ggplot() +
+        g <- ggplot() +
           geom_line(aes(x=rank, y=bid), data = paid_by_seed, color = "black", size = 2) +
           geom_point(aes(x=rank, y=bid), data = total_points, color="blue", size = 2) +
           labs(x = "Rank", y = "Bid")
+        ggplotly(g)
         
       })
       
-      output$realized_return <- renderPlot({
+      output$realized_return <- renderPlotly({
         total_points <- total_points()
         
         bids <- total_points %>% 
@@ -242,12 +248,13 @@ results_app <- function(auction_results, starting_points, year=NULL){
         
         combo <- bids %>% bind_rows(realized_return)
         
-        ggplot(combo) +
+        g <- ggplot(combo) +
           geom_bar(aes(x=reorder(abbreviate(team, 12), rank), y=points, fill = type), stat = "identity", show.legend = F) +
           geom_line(aes(x=reorder(abbreviate(team, 12), rank), y=realized_loss_or_gain, group = 1), data = total_points, size = 1) +
           theme(axis.text.x=element_text(angle=90,hjust=1,vjust = 0.5)) + 
           facet_grid(.~rank, scales = "free_x") +
           labs(x = "", y = "Points")
+        ggplotly(g)
         
       })
       
