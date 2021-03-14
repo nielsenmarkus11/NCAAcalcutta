@@ -2,7 +2,7 @@
 % Please edit documentation in R/get-data.R
 \name{scrape.game.results}
 \alias{scrape.game.results}
-\title{Scrape the game-by-game results of the NCAA MBB seaon}
+\title{Scrape the game-by-game results of the NCAA BB season}
 \usage{
 scrape.game.results(year, league = c("mens", "womens"))
 }
@@ -15,7 +15,7 @@ scrape.game.results(year, league = c("mens", "womens"))
 data.frame with game-by-game results
 }
 \description{
-Scrape the game-by-game results of the NCAA MBB seaon
+Scrape the game-by-game results of the NCAA BB season
 }
 \author{
 eshayer

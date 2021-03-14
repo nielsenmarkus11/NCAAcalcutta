@@ -4,8 +4,10 @@
 \alias{import_teams}
 \title{Import csv of NCAA teams}
 \usage{
-import_teams(file_path = system.file("extdata", "ncaa-teams.csv", package
-  = "NCAAcalcutta", mustWork = TRUE))
+import_teams(
+  file_path = system.file("extdata", "ncaa-teams.csv", package = "NCAAcalcutta",
+    mustWork = TRUE)
+)
 }
 \description{
 Import csv of NCAA teams

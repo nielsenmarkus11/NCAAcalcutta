@@ -4,9 +4,10 @@ Title: NCAA March Madness Calcutta App
 Version: 1.0
 Date: 2019-03-13
 Author: Mark Nielsen 
+Maintainer: Mark Nielsen <mn9999999999@gmail.com>
 Description: Mix up your office March Madness competition this year by setting up a calcutta auction.  This app will help you keep track of bids in the auction process.
 License: MIT
-Depends: 
+Imports: 
   shiny,
   iterators,
   dplyr,
@@ -16,4 +17,4 @@ Depends:
   DT,
   ggplot2,
   janitor
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.1

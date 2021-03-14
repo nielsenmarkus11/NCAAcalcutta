@@ -5,10 +5,11 @@
 #' teams <- import_teams(system.file("extdata", "ncaa-teams.csv", package = "NCAAcalcutta"))
 #' start_auction(teams, randomize=TRUE)
 #' 
+#' @import shiny
+#' @import iterators
+#' 
 #' @export
 start_auction <- function(teams, randomize=TRUE){
-  require('shiny')
-  require('iterators')
   
   if (randomize) {
     teams <- randomize_teams(teams)

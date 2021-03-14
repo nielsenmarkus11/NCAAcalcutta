@@ -1,5 +1,11 @@
+#' @param auction_results 
+#' @param starting_points Starting points given to each member for the
+#'
+#' @importFrom DT datatable JS formatStyle styleEqual
+#' @import ggplot2
+#'
 #' @export
-results_app <- function(teams, starting_points, randomize=TRUE){
+results_app <- function(auction_results, starting_points, year=NULL){
   # starting_points <- 1175
   
   shinyApp(
@@ -78,7 +84,7 @@ results_app <- function(teams, starting_points, randomize=TRUE){
       
       scores <-  reactive({
         input$goButton
-        scores <- NCAAcalcutta::get_tournament_scores() %>% 
+        scores <- NCAAcalcutta::get_tournament_scores(year=year) %>% 
           mutate(team1_elim = if_else(team2_win=='W', TRUE, FALSE, FALSE),
                  team2_elim = if_else(team1_win=='W', TRUE, FALSE, FALSE))
         return(scores)
@@ -98,7 +104,7 @@ results_app <- function(teams, starting_points, randomize=TRUE){
         scores_id <- scores_id1 %>% bind_rows(scores_id2)
         
         
-        teams_with_id <- teams %>% 
+        teams_with_id <- auction_results %>% 
           left_join(scores_id, by=c("rank","region")) %>% 
           select(-rank, -region)
         
