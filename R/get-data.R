@@ -416,7 +416,7 @@ get_tournament_scores <- function(league = 'mens', year = NULL){
     
     check_scores <- apply(split_scores6, 2, fin_score) %>% t
     
-    if(is.null(dim(check_scores)) || dim(check_scores)[1] < 1) check_scores <- matrix(NA, nrow = 1, ncol = 2)
+    if(is.null(dim(check_scores)) || dim(check_scores)[1] < 1 || dim(check_scores)[2] < 1) check_scores <- matrix(NA, nrow = 1, ncol = 2)
     
     # They didn't bold the last score, switch to teams
     check_win <- apply(split_teams6, 2, fin_win) %>% t
