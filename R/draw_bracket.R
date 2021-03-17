@@ -93,7 +93,9 @@ tournament_bracket <- function(n_teams, w=0.5, l=5){
     group_by(grp) %>% 
     filter(row_number()==1 | (row_number()==n() & grp<(n_teams-1))) %>% 
     ungroup() %>% 
-    mutate(x=ifelse(x > (cols+3)*l, x-l, x))
+    mutate(x=ifelse(x > (cols+3)*l, x-l, x),
+           game = grp,
+           team = row_number())
   
   return(list(plot=plot_out, data=data_out))
   
