@@ -25,6 +25,7 @@ results_app <- function(auction_results, starting_points, year=NULL){
                          menuItem("Teams by Owner", tabName = "owners", icon = icon("basketball-ball")),
                          menuItem("Bracket", tabName = "bracket", icon = icon("sitemap"))
                        ),
+                       uiOutput("select_owner"),
                        actionButton("goButton", "Refresh Data")
       ),
       dashboardBody(
@@ -64,8 +65,7 @@ results_app <- function(auction_results, starting_points, year=NULL){
                   fluidRow(
                     column(12,
                            box(
-                             title = "Inputs", status = "warning", solidHeader = TRUE,
-                             uiOutput("select_owner"),
+                             title = "Owner Summary", status = "warning", solidHeader = TRUE,
                              uiOutput("owner_remaining"),
                              uiOutput("owner_total"),
                              uiOutput("owner_rank"),
@@ -85,7 +85,7 @@ results_app <- function(auction_results, starting_points, year=NULL){
           tabItem(tabName = "bracket",
                   fluidRow(
                     column(12,
-                           plotlyOutput('bracket')
+                           plotlyOutput('bracket', height = '800px')
                            )
                   )
           )
@@ -98,7 +98,8 @@ results_app <- function(auction_results, starting_points, year=NULL){
         input$goButton
         scores <- NCAAcalcutta::get_tournament_scores(year=year) %>% 
           mutate(team1_elim = if_else(team2_win=='W', TRUE, FALSE, FALSE),
-                 team2_elim = if_else(team1_win=='W', TRUE, FALSE, FALSE))
+                 team2_elim = if_else(team1_win=='W', TRUE, FALSE, FALSE),
+                 game = row_number())
         return(scores)
       })
       
@@ -121,11 +122,11 @@ results_app <- function(auction_results, starting_points, year=NULL){
           select(-rank, -region)
         
         t1_scores <- scores %>% 
-          select(round, region, rank = team1_seed, team_id = team1_id, score = team1_score, eliminated = team1_elim, win=team1_win) %>% 
+          select(round, region, game, rank = team1_seed, team_id = team1_id, score = team1_score, eliminated = team1_elim, win=team1_win) %>% 
           left_join(teams_with_id, by=c("team_id"))
         
         t2_scores <- scores %>% 
-          select(round, region, rank = team2_seed, team_id = team2_id, score = team2_score, eliminated = team2_elim, win=team2_win) %>% 
+          select(round, region, game, rank = team2_seed, team_id = team2_id, score = team2_score, eliminated = team2_elim, win=team2_win) %>% 
           left_join(teams_with_id, by=c("team_id"))
         
         
@@ -134,7 +135,7 @@ results_app <- function(auction_results, starting_points, year=NULL){
         
         winning_team <- append_scores %>% 
           filter(round==6, win=='W') %>% 
-          mutate(round=7, score=100, eliminated=TRUE)
+          mutate(game=64, round=7, score=100, eliminated=TRUE)
         
         final_data <- append_scores %>% 
           bind_rows(winning_team) %>% 
@@ -155,7 +156,7 @@ results_app <- function(auction_results, starting_points, year=NULL){
       output$select_owner <- renderUI({
         total_points <- total_points()
         
-        selectizeInput('team_owner', "Select Owner:", unique(total_points$owner))
+        selectizeInput('team_owner', "Select Owner:", sort(unique(total_points$owner)))
       })
       
       player_points <- reactive({
@@ -329,30 +330,45 @@ results_app <- function(auction_results, starting_points, year=NULL){
       })
       
       output$bracket <- renderPlotly({
+        team_owner <- input$team_owner
         final_data <- final_data()
         
+        final_data$team_abbr <- unname(abbreviate(coalesce(final_data$team,''), 16))
+        
         bracket_prep <- final_data %>% 
-          mutate(old_row = row_number())
+          mutate(old_row = row_number(),
+                 region = ifelse(game==ifelse(is.null(year),62,63),'Final Four A',region),
+                 team_abbr = ifelse(owner==team_owner,
+                                    paste0('<b>',team_abbr,'</b>'),
+                                    team_abbr),
+                 highlight_color = ifelse(owner!=team_owner, "MediumPurple", "DarkOrange"))
         
         translate = read.csv(system.file("extdata", "match.csv", package = "NCAAcalcutta"))
         
-        bracket_teams <- bracket_prep %>% 
-          inner_join(translate) %>% 
-          arrange(new_row)
-        
+
         # bracket_prep$region <- ordered(bracket_prep$region,levels = c('Midwest','South','East','West','Final Four A', 'Final Four'))
         # 
-        # bracket_teams <- bracket_prep %>% 
+        # bracket_teams <- bracket_prep %>%
         #   mutate(final=ifelse(round>=6,1,0),
         #          final_four=ifelse(round>=5,1,0),
-        #          region_grp = ifelse(region %in% c('Midwest','South','Final Four A'),0,1)) %>% 
-        #   arrange(final, region_grp, final_four, round, region, -game, seed) %>% 
-        #   mutate(team = row_number())
+        #          region_grp = ifelse(region %in% c('Midwest','South','Final Four A'),0,1)) %>%
+        #   arrange(final, region_grp, final_four, round, region, -game, rank) %>%
+        #   mutate(new_row = row_number())
         
         bracket = tournament_bracket(64)
-        bracket$plot %>% add_annotations(data=bracket$data, x=~x, y=~y+0.5, text = ~coalesce(bracket_teams$team,''),
+        
+        bracket_teams <- bracket_prep %>% 
+          inner_join(translate, by='old_row') %>% 
+          inner_join(bracket$data %>% rename(new_row=team), by='new_row')
+        
+        
+        bracket$plot %>% add_annotations(data=bracket_teams,
+                                         x=~x,
+                                         y=~y+0.5,
+                                         text = ~coalesce(team_abbr,''),
                                          xanchor = 'left',
-                                         showarrow = F)
+                                         showarrow = F,
+                                         font = list(color = ~bracket_teams$highlight_color))
       })
     }
   )
