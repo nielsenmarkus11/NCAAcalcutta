@@ -25,6 +25,7 @@ bracket_draw_left <- function(x,y,l,w) {
 #' @export
 #' 
 #' @import plotly
+#' @importFrom dplyr '%>%' filter mutate group_by ungroup
 #'
 #' @examples
 tournament_bracket <- function(n_teams, w=0.5, l=5){
@@ -78,14 +79,22 @@ tournament_bracket <- function(n_teams, w=0.5, l=5){
     visible=FALSE
   )
   
-  plot_ly(data=final_bracket, 
-          x=~x, 
-          y=~y, 
-          mode="lines", 
-          split = ~grp,
-          line = list(color = 'black'), 
-          showlegend = FALSE) %>% 
+  plot_out <- plot_ly(data=final_bracket, 
+              x=~x, 
+              y=~y,
+              mode = 'lines',
+              split = ~grp,
+              line = list(color = 'black'), 
+              showlegend = FALSE) %>% 
     layout(xaxis = ax, yaxis = ax, 
            margin = list(l=0,r=0,t=0,b=0))
+  
+  data_out <- final_bracket %>% 
+    group_by(grp) %>% 
+    filter(row_number()==1 | (row_number()==n() & grp<(n_teams-1))) %>% 
+    ungroup() %>% 
+    mutate(x=ifelse(x > (cols+3)*l, x-l, x))
+  
+  return(list(plot=plot_out, data=data_out))
   
 }
