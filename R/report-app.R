@@ -22,7 +22,8 @@ results_app <- function(auction_results, starting_points, year=NULL){
                        sidebarMenu(
                          menuItem("Standings", tabName = "standings", icon = icon("trophy")),
                          menuItem("Graphs", tabName = "graphs", icon = icon("chart-bar")),
-                         menuItem("Teams by Owner", tabName = "owners", icon = icon("basketball-ball"))
+                         menuItem("Teams by Owner", tabName = "owners", icon = icon("basketball-ball")),
+                         menuItem("Bracket", tabName = "bracket", icon = icon("sitemap"))
                        ),
                        actionButton("goButton", "Refresh Data")
       ),
@@ -79,6 +80,13 @@ results_app <- function(auction_results, starting_points, year=NULL){
                                width = 12
                            )
                     )
+                  )
+          ),
+          tabItem(tabName = "bracket",
+                  fluidRow(
+                    column(12,
+                           plotlyOutput('bracket')
+                           )
                   )
           )
         )
@@ -318,6 +326,33 @@ results_app <- function(auction_results, starting_points, year=NULL){
             target = "row",
             fontWeight = styleEqual(1, "bold")
           )
+      })
+      
+      output$bracket <- renderPlotly({
+        final_data <- final_data()
+        
+        bracket_prep <- final_data %>% 
+          mutate(old_row = row_number())
+        
+        translate = read.csv(system.file("extdata", "match.csv", package = "NCAAcalcutta"))
+        
+        bracket_teams <- bracket_prep %>% 
+          inner_join(translate) %>% 
+          arrange(new_row)
+        
+        # bracket_prep$region <- ordered(bracket_prep$region,levels = c('Midwest','South','East','West','Final Four A', 'Final Four'))
+        # 
+        # bracket_teams <- bracket_prep %>% 
+        #   mutate(final=ifelse(round>=6,1,0),
+        #          final_four=ifelse(round>=5,1,0),
+        #          region_grp = ifelse(region %in% c('Midwest','South','Final Four A'),0,1)) %>% 
+        #   arrange(final, region_grp, final_four, round, region, -game, seed) %>% 
+        #   mutate(team = row_number())
+        
+        bracket = tournament_bracket(64)
+        bracket$plot %>% add_annotations(data=bracket$data, x=~x, y=~y+0.5, text = ~coalesce(bracket_teams$team,''),
+                                         xanchor = 'left',
+                                         showarrow = F)
       })
     }
   )
