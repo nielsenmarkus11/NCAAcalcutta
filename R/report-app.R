@@ -339,9 +339,8 @@ results_app <- function(auction_results, starting_points, year=NULL){
           mutate(old_row = row_number(),
                  region = ifelse(game==ifelse(is.null(year),62,63),'Final Four A',region),
                  team_abbr = ifelse(owner==team_owner,
-                                    paste0('<b>',team_abbr,'</b>'),
-                                    team_abbr),
-                 highlight_color = ifelse(owner!=team_owner, "MediumPurple", "DarkOrange"))
+                                    paste0('<span style="color:red;"><b>',team_abbr,'</b></span>'),
+                                    team_abbr))
         
         translate = read.csv(system.file("extdata", "match.csv", package = "NCAAcalcutta"))
         
@@ -367,8 +366,7 @@ results_app <- function(auction_results, starting_points, year=NULL){
                                          y=~y+0.5,
                                          text = ~coalesce(team_abbr,''),
                                          xanchor = 'left',
-                                         showarrow = F,
-                                         font = list(color = ~bracket_teams$highlight_color))
+                                         showarrow = F)
       })
     }
   )
