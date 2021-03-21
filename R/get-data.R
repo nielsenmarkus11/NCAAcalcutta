@@ -283,10 +283,17 @@ get_tournament_scores <- function(league = 'mens', year = NULL){
     scores_final <- apply(split_scores, 2, fin_score)
     insert_score_pos = grep('2483',split_teams)
     insert_score = rep(floor(mean(scores_final)),2)
+    insert_win = c('W',as.character(NA))
     
     fixed_scores <- rbind(scores_final[1:(insert_score_pos-1),],
-          insert_score,
-          scores_final[insert_score_pos:nrow(scores_final),]
+                          insert_score,
+                          scores_final[insert_score_pos:nrow(scores_final),]
+    )
+    
+    win_final <- apply(split_scores, 2, fin_win)
+    fixed_win <- rbind(win_final[1:(insert_score_pos-1),],
+                       insert_win,
+                       win_final[insert_score_pos:nrow(win_final),]
     )
     
     
@@ -294,7 +301,7 @@ get_tournament_scores <- function(league = 'mens', year = NULL){
                                  apply(split_teams, 2, fin_seeds),
                                  apply(split_teams, 2, fin_teams),
                                  fixed_scores,
-                                 apply(split_scores, 2, fin_win))
+                                 fixed_win)
     
     
     ## ROUND 2
