@@ -279,11 +279,21 @@ get_tournament_scores <- function(league = 'mens', year = NULL){
     split_teams <- str_split_fixed(teams, '<br>', 2)
     split_scores <- str_split_fixed(scores, '<br>', 2)
     
+    # Fix for VCU/Oregon 
+    scores_final <- apply(split_scores, 2, fin_score)
+    insert_score_pos = grep('2483',split_teams)
+    insert_score = rep(floor(mean(scores_final)),2)
+    
+    fixed_scores <- rbind(scores_final[1:(insert_score_pos-1),],
+          insert_score,
+          scores_final[insert_score_pos:nrow(scores_final),]
+    )
+    
     
     bracket_round1 <- data.frame(round = 1, region=rep(c("East","West","South","Midwest"), each=8),
                                  apply(split_teams, 2, fin_seeds),
                                  apply(split_teams, 2, fin_teams),
-                                 apply(split_scores, 2, fin_score),
+                                 fixed_scores,
                                  apply(split_scores, 2, fin_win))
     
     
