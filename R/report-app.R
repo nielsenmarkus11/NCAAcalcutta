@@ -99,7 +99,8 @@ results_app <- function(auction_results, starting_points, year=NULL){
         scores <- NCAAcalcutta::get_tournament_scores(year=year) %>% 
           mutate(team1_elim = if_else(team2_win=='W', TRUE, FALSE, FALSE),
                  team2_elim = if_else(team1_win=='W', TRUE, FALSE, FALSE),
-                 game = row_number())
+                 game = row_number(),
+                 team2_seed = ifelse(is.na(team2_seed),17-team1_seed, team2_seed))
         return(scores)
       })
       
@@ -123,11 +124,11 @@ results_app <- function(auction_results, starting_points, year=NULL){
         
         t1_scores <- scores %>% 
           select(round, region, game, rank = team1_seed, team_id = team1_id, score = team1_score, eliminated = team1_elim, win=team1_win) %>% 
-          left_join(teams_with_id, by=c("team_id"))
+          left_join(teams_with_id %>% filter(complete.cases(.)), by=c("team_id"))
         
         t2_scores <- scores %>% 
           select(round, region, game, rank = team2_seed, team_id = team2_id, score = team2_score, eliminated = team2_elim, win=team2_win) %>% 
-          left_join(teams_with_id, by=c("team_id"))
+          left_join(teams_with_id %>% filter(complete.cases(.)), by=c("team_id"))
         
         
         append_scores <- t1_scores %>% bind_rows(t2_scores)  
