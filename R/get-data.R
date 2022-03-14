@@ -4,7 +4,6 @@
 #' @param league either 'mens' or 'womens'
 #' @return data.frame with game-by-game results
 #' @export
-#' @author eshayer
 #' 
 #' @importFrom dplyr '%>%' mutate transmute filter
 
@@ -65,7 +64,6 @@ scrape.game.results = function(year, league = c('mens', 'womens')) {
 #'
 #' @param league either 'mens' or 'womens'
 #' @return data.frame of team names and ids
-#' @author eshayer
 #' @export
 #' 
 #' @importFrom dplyr '%>%' mutate transmute filter
@@ -95,7 +93,6 @@ scrape_teams = function(league) {
 #' @param team.id an ESPN team id
 #' @param league either 'mens' or 'womens'
 #' @return data.frame of game data for the team-year
-#' @author eshayer
 #' 
 #' @importFrom dplyr '%>%' mutate transmute filter
 #' @importFrom rvest html_text html_attr html_nodes html_node
@@ -279,29 +276,31 @@ get_tournament_scores <- function(league = 'mens', year = NULL){
     split_teams <- str_split_fixed(teams, '<br>', 2)
     split_scores <- str_split_fixed(scores, '<br>', 2)
     
-    # Fix for VCU/Oregon 
-    scores_final <- apply(split_scores, 2, fin_score)
-    insert_score_pos = grep('2483',split_teams)
-    insert_score = rep(floor(mean(scores_final)),2)
-    insert_win = c('W',as.character(NA))
+    # # Fix for VCU/Oregon 
+    # scores_final <- apply(split_scores, 2, fin_score)
+    # insert_score_pos = grep('2483',split_teams)
+    # insert_score = rep(floor(mean(scores_final)),2)
+    # insert_win = c('W',as.character(NA))
+    # 
+    # fixed_scores <- rbind(scores_final[1:(insert_score_pos-1),],
+    #                       insert_score,
+    #                       scores_final[insert_score_pos:nrow(scores_final),]
+    # )
+    # 
+    # win_final <- apply(split_scores, 2, fin_win)
+    # fixed_win <- rbind(win_final[1:(insert_score_pos-1),],
+    #                    insert_win,
+    #                    win_final[insert_score_pos:nrow(win_final),]
+    # )
     
-    fixed_scores <- rbind(scores_final[1:(insert_score_pos-1),],
-                          insert_score,
-                          scores_final[insert_score_pos:nrow(scores_final),]
-    )
     
-    win_final <- apply(split_scores, 2, fin_win)
-    fixed_win <- rbind(win_final[1:(insert_score_pos-1),],
-                       insert_win,
-                       win_final[insert_score_pos:nrow(win_final),]
-    )
-    
-    
-    bracket_round1 <- data.frame(round = 1, region=rep(c("East","West","South","Midwest"), each=8),
+    bracket_round1 <- data.frame(round = 1, region=rep(c("West","East","South","Midwest"), each=8),
                                  apply(split_teams, 2, fin_seeds),
                                  apply(split_teams, 2, fin_teams),
-                                 fixed_scores,
-                                 fixed_win)
+                                 apply(split_scores, 2, fin_score),
+                                 apply(split_scores, 2, fin_win))
+    # fixed_scores,
+    # fixed_win)
     
     
     ## ROUND 2
@@ -326,7 +325,7 @@ get_tournament_scores <- function(league = 'mens', year = NULL){
     
     if(is.null(dim(check_win)) || dim(check_win)[1] < 16) check_win <- matrix(NA, nrow = 16, ncol = 2)
     
-    bracket_round2 <- data.frame(round = 2, region=rep(c("East","West","South","Midwest"), each=4),
+    bracket_round2 <- data.frame(round = 2, region=rep(c("West","East","South","Midwest"), each=4),
                                  apply(split_teams2, 2, fin_seeds),
                                  apply(split_teams2, 2, fin_teams),
                                  check_scores,
@@ -354,7 +353,7 @@ get_tournament_scores <- function(league = 'mens', year = NULL){
     
     if(is.null(dim(check_win)) || dim(check_win)[1] < 8) check_win <- matrix(NA, nrow = 8, ncol = 2)
     
-    bracket_round3 <- data.frame(round = 3, region=rep(c("East","West","South","Midwest"), each=2),
+    bracket_round3 <- data.frame(round = 3, region=rep(c("West","East","South","Midwest"), each=2),
                                  apply(split_teams3, 2, fin_seeds),
                                  apply(split_teams3, 2, fin_teams),
                                  check_scores,
@@ -382,7 +381,7 @@ get_tournament_scores <- function(league = 'mens', year = NULL){
     
     if(is.null(dim(check_win)) || dim(check_win)[1] < 4) check_win <- matrix(NA, nrow = 4, ncol = 2)
     
-    bracket_round4 <- data.frame(round = 4, region=rep(c("East","West","South","Midwest"), each=1),
+    bracket_round4 <- data.frame(round = 4, region=rep(c("West","East","South","Midwest"), each=1),
                                  apply(split_teams4, 2, fin_seeds),
                                  apply(split_teams4, 2, fin_teams),
                                  check_scores,

@@ -1,5 +1,5 @@
 bracket <- get_tournament_scores()
-team_names <- scrape.teams('mens')
+team_names <- scrape_teams('mens')
 
 library(dplyr)
 teams1 <- bracket %>%
@@ -14,12 +14,13 @@ teams1 <- bracket %>%
 teams2 <- bracket %>%
   dplyr::mutate(match_id = row_number()) %>% 
   dplyr::filter(round == 1) %>% 
-  dplyr::select(match_id, rank = team2_seed, region, team2_id, team3_id) %>% 
+  dplyr::select(match_id, rank = team2_seed, region, team2_id) %>% 
   left_join(team_names, by = c('team2_id'='id')) %>%
-  left_join(team_names, by = c('team3_id'='id')) %>%
+  # left_join(team_names, by = c('team3_id'='id')) %>%
   dplyr::mutate(rank = as.numeric(as.character(rank)),
                 region = stringi::stri_trans_totitle(region),
-                name = paste0(name.x,ifelse(is.na(name.y),"",paste0('/',name.y)))) %>%
+                # name = paste0(name.x,ifelse(is.na(name.y),"",paste0('/',name.y)))
+                ) %>%
   dplyr::select(match_id, rank, region, team=name)
 
 # Find Opponent
@@ -42,4 +43,4 @@ teams$match_id <- NULL
 
 start_auction(teams)
 
-write.csv(teams,file="inst/extdata/ncaa-teams-2019.csv", row.names = FALSE)
+write.csv(teams,file="inst/extdata/ncaa-teams-2022.csv", row.names = FALSE)
