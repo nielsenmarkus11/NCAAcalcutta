@@ -10,8 +10,10 @@ randomize_teams(df, random_seed = 156)
 Randomize order of teams for Calcutta auction
 }
 \examples{
+\dontrun{
 # Input the 2018 teams
 teams <- import_teams(system.file("extdata", "ncaa-teams.csv", package = "NCAAcalcutta"))
 teams <- randomize_teams(teams, random_seed=123)
+}
 
 }

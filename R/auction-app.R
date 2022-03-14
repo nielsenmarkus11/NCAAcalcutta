@@ -1,15 +1,28 @@
 #' @title Start the NCAA Calcutta Shiny App
 #' 
+#' @description This Shiny App will help facilitate the auction
+#' 
+#' @param teams This should be a dataframe with rank, region, team, and opponent
+#' @param players This should be a character vector of all those participating
+#' @param points This is the total number of points each player starts with
+#' @param randomize  (Default: TRUE) This determines whether you'd like to randomize the order of which teams are auctioned
+#' By default this is a block randomization so that you will get a 1-16 seed before you see the next group of 1-16 seeds
+#' 
 #' @examples 
+#' \dontrun{
 #' # Input the 2018 teams
 #' teams <- import_teams(system.file("extdata", "ncaa-teams.csv", package = "NCAAcalcutta"))
-#' start_auction(teams, randomize=TRUE)
+#' players <- c('Mark','Markus','Marko','Marky')
+#' points <- 1200
+#' start_auction(teams, players, points, randomize=TRUE)
+#' }
 #' 
 #' @import shiny
 #' @import iterators
+#' @importFrom shinyalert shinyalert
 #' 
 #' @export
-start_auction <- function(teams, randomize=TRUE){
+start_auction <- function(teams, players, points, randomize=TRUE){
   
   if (randomize) {
     teams <- randomize_teams(teams)
@@ -18,6 +31,9 @@ start_auction <- function(teams, randomize=TRUE){
   i <- 1
   
   teams.out <- NULL
+  
+  player_points <- data.frame(player=players, points=points)
+  
   runApp(list(
     # Define UI for application that draws a histogram
     ui = fluidPage(
@@ -29,7 +45,7 @@ start_auction <- function(teams, randomize=TRUE){
       wellPanel(
         fluidRow(
           column(4,
-                 textInput("owner","Bid Winner:"),
+                 selectizeInput("owner","Bid Winner:", choices = players),
                  textInput("cost","Cost:"),
                  actionButton("submit","Submit")),
           column(4,
@@ -152,10 +168,37 @@ start_auction <- function(teams, randomize=TRUE){
         owner <- isolate(input$owner)
         cost <- isolate(input$cost)
         
-        tmp.dat <- data.frame(teams[i,])
-        tmp.dat$owner <- owner
-        tmp.dat$bid <- cost
-        teams.out <<- rbind(teams.out,tmp.dat)
+        if(is.null(teams.out)){
+          
+          if (points - coalesce(as.numeric(cost),0) < 0 ){
+            shinyalert("Oops!", paste0(owner," has less than ",cost," points left."), type = "error")
+          } else {
+            tmp.dat <- data.frame(teams[i,])
+            tmp.dat$owner <- owner
+            tmp.dat$bid <- cost
+            teams.out <<- rbind(teams.out,tmp.dat)
+          }
+        } else {
+          if (points - sum(as.numeric(teams.out[teams.out$owner==owner,"bid"]), na.rm = TRUE) - coalesce(as.numeric(cost),0) < 0 ){
+            shinyalert::shinyalert("Oops!", paste0(owner," has less than ",cost," points left."), type = "error")
+          } else {
+            tmp.dat <- data.frame(teams[i,])
+            tmp.dat$owner <- owner
+            tmp.dat$bid <- cost
+            teams.out <<- rbind(teams.out,tmp.dat)
+          }
+        }
+        
+        if(is.null(teams.out)){
+          return(data.frame(rank='',
+                            region='',
+                            team='',
+                            opponent='',
+                            owner='',
+                            bid=''))
+        } else {
+          return(teams.out)
+        }
       })
       
       output$table <- renderDataTable({

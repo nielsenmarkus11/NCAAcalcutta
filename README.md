@@ -10,8 +10,10 @@ You'll need to get the latest data, but here is how you can run the Calcutta auc
 ```
 library(NCAAcalcutta)
 # Input the 2019 teams and run the auction app
-teams <- import_teams(system.file("extdata", "ncaa-teams-2019.csv", package = "NCAAcalcutta"))
-start_auction(teams)
+teams <- import_teams(system.file("extdata", "ncaa-teams-2022.csv", package = "NCAAcalcutta"))
+players <- c('Mark','Markus','Marko','Marky')
+points <- 1200
+start_auction(teams, players, points)
 ```
 
 ### Here’s how it works:

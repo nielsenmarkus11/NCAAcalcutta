@@ -13,7 +13,9 @@ import_teams(
 Import csv of NCAA teams
 }
 \examples{
+\dontrun{
 # Input the 2018 teams
 teams <- import_teams(system.file("extdata", "ncaa-teams.csv", package = "NCAAcalcutta"))
+}
 
 }

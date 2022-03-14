@@ -41,6 +41,9 @@ teams <- bind_rows(teams1, teams2) %>%
 
 teams$match_id <- NULL
 
+# teams <- edit(teams)
+teams <- teams %>% arrange(region, rank)
+
 start_auction(teams)
 
 write.csv(teams,file="inst/extdata/ncaa-teams-2022.csv", row.names = FALSE)

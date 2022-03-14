@@ -17,5 +17,8 @@ Imports:
   DT,
   ggplot2,
   janitor,
-  plotly
+  plotly,
+  shinyalert,
+  tidyr,
+  xml2
 RoxygenNote: 7.1.1
