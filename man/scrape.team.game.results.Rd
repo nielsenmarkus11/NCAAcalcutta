@@ -19,6 +19,3 @@ data.frame of game data for the team-year
 \description{
 Scrape game results for a single team-year combination
 }
-\author{
-eshayer
-}

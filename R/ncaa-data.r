@@ -1,8 +1,10 @@
 #' @title Create a skeleton csv to manually input teams
 #' 
 #' @examples 
+#' \dontrun{
 #' # Prep file to input teams manually
 #' preteams <- team_skeleton()
+#' }
 #' 
 #' @export
 team_skeleton <- function(){
@@ -19,8 +21,10 @@ team_skeleton <- function(){
 #' @title Import csv of NCAA teams
 #' 
 #' @examples 
+#' \dontrun{
 #' # Input the 2018 teams
 #' teams <- import_teams(system.file("extdata", "ncaa-teams.csv", package = "NCAAcalcutta"))
+#' }
 #' 
 #' @export
 import_teams <- function(file_path=system.file("extdata", "ncaa-teams.csv", package = "NCAAcalcutta", mustWork = TRUE)){
@@ -32,9 +36,11 @@ import_teams <- function(file_path=system.file("extdata", "ncaa-teams.csv", pack
 #' @title Randomize order of teams for Calcutta auction
 #' 
 #' @examples 
+#' \dontrun{
 #' # Input the 2018 teams
 #' teams <- import_teams(system.file("extdata", "ncaa-teams.csv", package = "NCAAcalcutta"))
 #' teams <- randomize_teams(teams, random_seed=123)
+#' }
 #' 
 #' @export
 randomize_teams <- function(df,random_seed = 156){

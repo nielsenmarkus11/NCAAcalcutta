@@ -10,7 +10,6 @@
 #' @return returns a dataframe with coordinates to draw a match
 #' @export
 #'
-#' @examples
 bracket_draw_left <- function(x,y,l,w) {
   data.frame(x=c(x,x+l,x+l,x),y=c(y+w,y+w,y-w,y-w))
 }
@@ -27,7 +26,6 @@ bracket_draw_left <- function(x,y,l,w) {
 #' @import plotly
 #' @importFrom dplyr '%>%' filter mutate group_by ungroup
 #'
-#' @examples
 tournament_bracket <- function(n_teams, w=0.5, l=5){
   
   cols=log(n_teams,2)-1

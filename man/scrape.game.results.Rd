@@ -17,6 +17,3 @@ data.frame with game-by-game results
 \description{
 Scrape the game-by-game results of the NCAA BB season
 }
-\author{
-eshayer
-}

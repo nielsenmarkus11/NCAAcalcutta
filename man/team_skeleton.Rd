@@ -10,7 +10,9 @@ team_skeleton()
 Create a skeleton csv to manually input teams
 }
 \examples{
+\dontrun{
 # Prep file to input teams manually
 preteams <- team_skeleton()
+}
 
 }
