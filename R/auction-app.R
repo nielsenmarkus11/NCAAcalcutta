@@ -116,8 +116,8 @@ start_auction <- function(teams, players, points, randomize=TRUE){
       output$minbid <- renderText({
         input$nextteam
         input$lastteam
-        minbid <- ifelse(teams$rank[i]<=4,100,
-                         ifelse(teams$rank[i]<=10,55,35)
+        minbid <- ifelse(teams$rank[i]<=4,90,
+                         ifelse(teams$rank[i]<=10,45,25)
         )
         
         paste0("Minimum Bid: ",minbid)
