@@ -99,7 +99,7 @@ scrape_teams = function(league) {
 #' @importFrom xml2 read_html
 
 scrape.team.game.results = function(year, team.id, league) {
-  # year = 2019; team.id = 328; league = 'mens'
+  # year = 2021; team.id = 2670; league = 'mens'
   year = as.character(year)
   team.id = as.character(team.id)
   
@@ -154,6 +154,17 @@ scrape.team.game.results = function(year, team.id, league) {
     is.na %>%
     which 
   
+  skip2 = result.cells %>%
+    html_node('span.ml4') %>%
+    html_text(trim = TRUE) %>%
+    strsplit(' ') %>%
+    sapply(function(row) row[1]) %>%
+    strsplit('-') %>%
+    is.na %>%
+    which 
+  
+  skip = unique(c(skip, skip2))
+  
   if (length(skip) > 0) {
     opponent.cells = opponent.cells[-skip]
     result.cells = result.cells[-skip]
@@ -192,7 +203,7 @@ scrape.team.game.results = function(year, team.id, league) {
   game.id = result.cells %>%
     html_node('span.ml4 a') %>%
     html_attr('href') %>%
-    strsplit('=') %>%
+    strsplit('/gameId/') %>%
     sapply(function(row) row[2])
   
   data.frame(game.id = game.id,
