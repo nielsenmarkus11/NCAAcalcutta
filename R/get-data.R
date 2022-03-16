@@ -29,7 +29,8 @@ scrape.game.results = function(year, league = c('mens', 'womens')) {
                        other.score = character(0),
                        home = character(0),
                        location = character(0),
-                       ot = character(0))
+                       ot = character(0),
+                       year = character(0))
   
   for (team.id in teams$id) {
     message(paste0("Pulling data for team ", team.id))
@@ -50,7 +51,8 @@ scrape.game.results = function(year, league = c('mens', 'womens')) {
               home.score = ifelse(home, primary.score, other.score),
               away.score = ifelse(home, other.score, primary.score),
               neutral = ifelse(location == 'N', 1, 0),
-              ot = ot)
+              ot = ot,
+              year = year)
   
   results$home.id = ifelse(is.na(results$home.id), 'NA', results$home.id)
   results$away.id = ifelse(is.na(results$away.id), 'NA', results$away.id)
@@ -215,6 +217,7 @@ scrape.team.game.results = function(year, team.id, league) {
                                         ncol = 2, byrow = FALSE)],
              location = location,
              ot = ot,
+             year = year,
              stringsAsFactors = FALSE)
 }
 
