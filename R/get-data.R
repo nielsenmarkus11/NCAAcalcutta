@@ -176,55 +176,70 @@ scrape.team.game.results = function(year, team.id, league) {
       result.cells_tourney = result.cells_tourney[-skip_tourney]
     }
     
-    won_tourney = result.cells_tourney %>%
-      html_node('span.fw-bold') %>%
-      html_text(trim = TRUE) == 'W'
-    score_tourney = result.cells_tourney %>%
-      html_node('span.ml4') %>%
-      html_text(trim = TRUE) %>%
-      strsplit(' ') %>%
-      sapply(function(row) row[1]) %>%
-      strsplit('-') %>%
-      sapply(identity) %>%
-      t
-    other_tourney = opponent.cells_tourney %>%
-      html_node('span:nth-child(3) > a') %>%
-      html_attr('href') %>%
-      strsplit('/') %>%
-      sapply(function(row) row[6])
-    neutral_tourney = opponent.cells_tourney %>%
-      html_node('span:nth-child(3)') %>%
-      html_text(trim = TRUE) %>%
-      endsWith('*')
-    at.or.vs_tourney = opponent.cells_tourney %>%
-      html_node('span.pr2') %>%
-      html_text(trim = TRUE)
-    location_tourney = ifelse(neutral_tourney, 'N', ifelse(at.or.vs_tourney == 'vs', 'H', 'A'))
-    ot_tourney = result.cells_tourney %>%
-      html_node('span.ml4') %>%
-      html_text(trim = TRUE) %>%
-      strsplit(' ') %>%
-      sapply(function(row) row[2]) %>%
-      ifelse(is.na(.), '', .)
-    game.id_tourney = result.cells_tourney %>%
-      html_node('span.ml4 a') %>%
-      html_attr('href') %>%
-      strsplit('/gameId/') %>%
-      sapply(function(row) row[2])
-    
-    tourney_games <- data.frame(game.id = game.id_tourney,
-                                primary.id = team.id,
-                                primary.score = score_tourney[matrix(c(1:nrow(score_tourney), ifelse(won_tourney, 1, 2)),
+    if(length(opponent.cells_tourney)>0){
+      won_tourney = result.cells_tourney %>%
+        html_node('span.fw-bold') %>%
+        html_text(trim = TRUE) == 'W'
+      score_tourney = result.cells_tourney %>%
+        html_node('span.ml4') %>%
+        html_text(trim = TRUE) %>%
+        strsplit(' ') %>%
+        sapply(function(row) row[1]) %>%
+        strsplit('-') %>%
+        sapply(identity) %>%
+        t
+      other_tourney = opponent.cells_tourney %>%
+        html_node('span:nth-child(3) > a') %>%
+        html_attr('href') %>%
+        strsplit('/') %>%
+        sapply(function(row) row[6])
+      neutral_tourney = opponent.cells_tourney %>%
+        html_node('span:nth-child(3)') %>%
+        html_text(trim = TRUE) %>%
+        endsWith('*')
+      at.or.vs_tourney = opponent.cells_tourney %>%
+        html_node('span.pr2') %>%
+        html_text(trim = TRUE)
+      location_tourney = ifelse(neutral_tourney, 'N', ifelse(at.or.vs_tourney == 'vs', 'H', 'A'))
+      ot_tourney = result.cells_tourney %>%
+        html_node('span.ml4') %>%
+        html_text(trim = TRUE) %>%
+        strsplit(' ') %>%
+        sapply(function(row) row[2]) %>%
+        ifelse(is.na(.), '', .)
+      game.id_tourney = result.cells_tourney %>%
+        html_node('span.ml4 a') %>%
+        html_attr('href') %>%
+        strsplit('/gameId/') %>%
+        sapply(function(row) row[2])
+      
+      tourney_games <- data.frame(game.id = game.id_tourney,
+                                  primary.id = team.id,
+                                  primary.score = score_tourney[matrix(c(1:nrow(score_tourney), ifelse(won_tourney, 1, 2)),
+                                                                       ncol = 2, byrow = FALSE)],
+                                  other.id = other_tourney,
+                                  other.score = score_tourney[matrix(c(1:nrow(score_tourney), ifelse(won_tourney, 2, 1)),
                                                                      ncol = 2, byrow = FALSE)],
-                                other.id = other_tourney,
-                                other.score = score_tourney[matrix(c(1:nrow(score_tourney), ifelse(won_tourney, 2, 1)),
-                                                                   ncol = 2, byrow = FALSE)],
-                                location = location_tourney,
-                                won = won_tourney,
-                                ot = ot_tourney,
-                                year = year,
-                                tournament = 'YES',
-                                stringsAsFactors = FALSE)
+                                  location = location_tourney,
+                                  won = won_tourney,
+                                  ot = ot_tourney,
+                                  year = year,
+                                  tournament = 'YES',
+                                  stringsAsFactors = FALSE)
+    } else {
+      
+      tourney_games <- data.frame(game.id = character(0),
+                                  primary.id = character(0),
+                                  primary.score = character(0),
+                                  other.id = character(0),
+                                  other.score = character(0),
+                                  location = character(0),
+                                  won = logical(0),
+                                  ot = character(0),
+                                  year = character(0),
+                                  tournament = character(0),
+                                  stringsAsFactors = FALSE)
+    }
   }
   
   # Now get regular season scores
