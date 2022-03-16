@@ -125,6 +125,7 @@ scrape.team.game.results = function(year, team.id, league) {
       html_nodes('.Table__TBODY > tr'),
     error = function(e){
       message(paste0('-Trying one more time to get records for ', team.id, ' in year ', year,'.'))
+      Sys.sleep(3)
       read_html(url) %>%
         html_nodes('.Table__TBODY > tr')
     })
@@ -137,14 +138,96 @@ scrape.team.game.results = function(year, team.id, league) {
   # remove tournament games
   tourney = rows %>%
     html_text(trim = TRUE) %>%
+    toupper() %>% 
     startsWith(c("MEN'S BASKETBALL CHAMPIONSHIP",
                  "NCAA WOMEN'S CHAMPIONSHIP")) %>%
     which
   
   if (length(tourney) > 0) {
+    rows_tourney = rows[1:(max(tourney) + 1)]
     rows = rows[(max(tourney) + 1):length(rows)]
   }
   
+  # Get tournament scores
+  opponent.cells_tourney = rows_tourney %>%
+    html_nodes('td:nth-child(2)')
+  
+  result.cells_tourney = rows_tourney %>%
+    html_nodes('td:nth-child(3)')
+  
+  skip_tourney = result.cells_tourney %>%
+    html_node('span.fw-bold') %>%
+    html_text(trim = TRUE) %>%
+    is.na %>%
+    which 
+  
+  skip2_tourney = result.cells_tourney %>%
+    html_node('span.ml4') %>%
+    html_text(trim = TRUE) %>%
+    strsplit(' ') %>%
+    sapply(function(row) row[1]) %>%
+    strsplit('-') %>%
+    is.na %>%
+    which 
+  
+  skip_tourney = unique(c(skip_tourney, skip2_tourney))
+  
+  if (length(skip_tourney) > 0) {
+    opponent.cells_tourney = opponent.cells_tourney[-skip_tourney]
+    result.cells_tourney = result.cells_tourney[-skip_tourney]
+  }
+  
+  won_tourney = result.cells_tourney %>%
+    html_node('span.fw-bold') %>%
+    html_text(trim = TRUE) == 'W'
+  score_tourney = result.cells_tourney %>%
+    html_node('span.ml4') %>%
+    html_text(trim = TRUE) %>%
+    strsplit(' ') %>%
+    sapply(function(row) row[1]) %>%
+    strsplit('-') %>%
+    sapply(identity) %>%
+    t
+  other_tourney = opponent.cells_tourney %>%
+    html_node('span:nth-child(3) > a') %>%
+    html_attr('href') %>%
+    strsplit('/') %>%
+    sapply(function(row) row[6])
+  neutral_tourney = opponent.cells_tourney %>%
+    html_node('span:nth-child(3)') %>%
+    html_text(trim = TRUE) %>%
+    endsWith('*')
+  at.or.vs_tourney = opponent.cells_tourney %>%
+    html_node('span.pr2') %>%
+    html_text(trim = TRUE)
+  location_tourney = ifelse(neutral_tourney, 'N', ifelse(at.or.vs_tourney == 'vs', 'H', 'A'))
+  ot_tourney = result.cells_tourney %>%
+    html_node('span.ml4') %>%
+    html_text(trim = TRUE) %>%
+    strsplit(' ') %>%
+    sapply(function(row) row[2]) %>%
+    ifelse(is.na(.), '', .)
+  game.id_tourney = result.cells_tourney %>%
+    html_node('span.ml4 a') %>%
+    html_attr('href') %>%
+    strsplit('/gameId/') %>%
+    sapply(function(row) row[2])
+  
+  tourney_games <- data.frame(game.id = game.id_tourney,
+             primary.id = team.id,
+             primary.score = score_tourney[matrix(c(1:nrow(score_tourney), ifelse(won_tourney, 1, 2)),
+                                          ncol = 2, byrow = FALSE)],
+             other.id = other_tourney,
+             other.score = score_tourney[matrix(c(1:nrow(score_tourney), ifelse(won_tourney, 2, 1)),
+                                        ncol = 2, byrow = FALSE)],
+             location = location_tourney,
+             won = won_tourney,
+             ot = ot_tourney,
+             year = year,
+             tournament = 'YES',
+             stringsAsFactors = FALSE)
+  
+  # Now get regular season scores
   opponent.cells = rows %>%
     html_nodes('td:nth-child(2)')
   
@@ -220,7 +303,7 @@ scrape.team.game.results = function(year, team.id, league) {
     strsplit('/gameId/') %>%
     sapply(function(row) row[2])
   
-  data.frame(game.id = game.id,
+  regular_games = data.frame(game.id = game.id,
              primary.id = team.id,
              primary.score = score[matrix(c(1:nrow(score), ifelse(won, 1, 2)),
                                           ncol = 2, byrow = FALSE)],
@@ -228,9 +311,12 @@ scrape.team.game.results = function(year, team.id, league) {
              other.score = score[matrix(c(1:nrow(score), ifelse(won, 2, 1)),
                                         ncol = 2, byrow = FALSE)],
              location = location,
+             won = won,
              ot = ot,
              year = year,
+             tournament = "NO",
              stringsAsFactors = FALSE)
+  return(rbind(tourney_games, regular_games))
 }
 
 
