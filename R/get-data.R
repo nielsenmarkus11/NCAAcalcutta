@@ -75,19 +75,31 @@ scrape_teams = function(league) {
   
   url = paste0('https://www.espn.com/', league, '-college-basketball/teams')
   
-  cells = read_html(url) %>%
-    html_nodes('.TeamLinks > div.pl3 > a')
+  conferences = read_html(url) %>%
+    html_nodes('div.mt7 > div.pb4') %>% html_text()
   
-  cname = cells %>%
-    html_text(trim = TRUE)
+  iter_cells = read_html(url) %>%
+    html_nodes('div.mt7 > div.mt4')
   
-  id = cells %>%
-    html_attr('href') %>%
-    strsplit('/') %>%
-    sapply(identity) %>%
-    `[`(6,)
+  output_df <- NULL
   
-  data.frame(name = cname, id = id, stringsAsFactors = FALSE)
+  for(i in 1:length(conferences)){
+    cells = iter_cells[[i]] %>%
+      html_nodes('.TeamLinks > div.pl3 > a')
+    
+    cname = cells %>%
+      html_text(trim = TRUE)
+    
+    id = cells %>%
+      html_attr('href') %>%
+      strsplit('/') %>%
+      sapply(identity) %>%
+      `[`(6,)
+    
+    tmp <- data.frame(name = cname, id = id, conference=conferences[i], stringsAsFactors = FALSE)
+    output_df <- rbind(output_df, tmp)
+  }
+  return(output_df)
 }
 
 #' Scrape game results for a single team-year combination
