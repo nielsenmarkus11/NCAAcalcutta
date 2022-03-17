@@ -418,32 +418,41 @@ get_tournament_scores <- function(league = 'mens', year = NULL, source='espn'){
     split_teams <- str_split_fixed(teams, '<br>', 2)
     split_scores <- str_split_fixed(scores, '<br>', 2)
     
-    # # Fix for VCU/Oregon 
-    # scores_final <- apply(split_scores, 2, fin_score)
-    # insert_score_pos = grep('2483',split_teams)
-    # insert_score = rep(floor(mean(scores_final)),2)
-    # insert_win = c('W',as.character(NA))
-    # 
-    # fixed_scores <- rbind(scores_final[1:(insert_score_pos-1),],
-    #                       insert_score,
-    #                       scores_final[insert_score_pos:nrow(scores_final),]
-    # )
-    # 
-    # win_final <- apply(split_scores, 2, fin_win)
-    # fixed_win <- rbind(win_final[1:(insert_score_pos-1),],
-    #                    insert_win,
-    #                    win_final[insert_score_pos:nrow(win_final),]
-    # )
-    
-    
+    if(year==2021){
+      # Fix for VCU/Oregon forfeit
+      scores_final <- apply(split_scores, 2, fin_score)
+      insert_score_pos = grep('2483',split_teams)
+      insert_score = rep(floor(mean(scores_final)),2)
+      insert_win = c('W',as.character(NA))
+      
+      fixed_scores <- rbind(scores_final[1:(insert_score_pos-1),],
+                            insert_score,
+                            scores_final[insert_score_pos:nrow(scores_final),]
+      )
+      
+      win_final <- apply(split_scores, 2, fin_win)
+      fixed_win <- rbind(win_final[1:(insert_score_pos-1),],
+                         insert_win,
+                         win_final[insert_score_pos:nrow(win_final),]
+      )
+      
+      
+      bracket_round1 <- data.frame(round = 1, region=rep(c("West","East","South","Midwest"), each=8),
+                                   apply(split_teams, 2, fin_seeds),
+                                   apply(split_teams, 2, fin_teams),
+                                   # apply(split_scores, 2, fin_score),
+                                   # apply(split_scores, 2, fin_win))
+                                   fixed_scores,
+                                   fixed_win)
+    } else {
+
     bracket_round1 <- data.frame(round = 1, region=rep(c("West","East","South","Midwest"), each=8),
                                  apply(split_teams, 2, fin_seeds),
                                  apply(split_teams, 2, fin_teams),
                                  apply(split_scores, 2, fin_score),
                                  apply(split_scores, 2, fin_win))
-    # fixed_scores,
-    # fixed_win)
-    
+    }
+
     
     ## ROUND 2
     
