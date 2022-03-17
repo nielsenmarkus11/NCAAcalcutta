@@ -1,0 +1,481 @@
+"region","team_seed","round","pred_score"
+"East",1,1,77
+"West",1,1,76
+"Midwest",1,1,77
+"South",1,1,75
+"Final Four",1,1,78
+"East",2,1,73
+"West",2,1,74
+"Midwest",2,1,76
+"South",2,1,74
+"Final Four",2,1,73
+"East",3,1,70
+"West",3,1,73
+"Midwest",3,1,74
+"South",3,1,73
+"Final Four",3,1,71
+"East",4,1,70
+"West",4,1,71
+"Midwest",4,1,72
+"South",4,1,71
+"Final Four",4,1,70
+"East",5,1,71
+"West",5,1,72
+"Midwest",5,1,72
+"South",5,1,72
+"Final Four",5,1,71
+"East",6,1,69
+"West",6,1,71
+"Midwest",6,1,68
+"South",6,1,70
+"Final Four",6,1,69
+"East",7,1,69
+"West",7,1,72
+"Midwest",7,1,70
+"South",7,1,71
+"Final Four",7,1,69
+"East",8,1,69
+"West",8,1,70
+"Midwest",8,1,71
+"South",8,1,71
+"Final Four",8,1,69
+"East",9,1,69
+"West",9,1,70
+"Midwest",9,1,70
+"South",9,1,73
+"Final Four",9,1,69
+"East",10,1,68
+"West",10,1,71
+"Midwest",10,1,69
+"South",10,1,72
+"Final Four",10,1,69
+"East",11,1,68
+"West",11,1,68
+"Midwest",11,1,67
+"South",11,1,66
+"Final Four",11,1,68
+"East",12,1,69
+"West",12,1,69
+"Midwest",12,1,68
+"South",12,1,68
+"Final Four",12,1,69
+"East",13,1,65
+"West",13,1,68
+"Midwest",13,1,64
+"South",13,1,68
+"Final Four",13,1,65
+"East",14,1,61
+"West",14,1,66
+"Midwest",14,1,63
+"South",14,1,64
+"Final Four",14,1,63
+"East",15,1,62
+"West",15,1,66
+"Midwest",15,1,62
+"South",15,1,64
+"Final Four",15,1,63
+"East",16,1,63
+"West",16,1,64
+"Midwest",16,1,62
+"South",16,1,63
+"Final Four",16,1,64
+"East",1,2,75
+"West",1,2,75
+"Midwest",1,2,74
+"South",1,2,74
+"Final Four",1,2,76
+"East",2,2,72
+"West",2,2,73
+"Midwest",2,2,71
+"South",2,2,75
+"Final Four",2,2,71
+"East",3,2,71
+"West",3,2,70
+"Midwest",3,2,70
+"South",3,2,73
+"Final Four",3,2,70
+"East",4,2,72
+"West",4,2,70
+"Midwest",4,2,70
+"South",4,2,73
+"Final Four",4,2,71
+"East",5,2,72
+"West",5,2,73
+"Midwest",5,2,74
+"South",5,2,76
+"Final Four",5,2,72
+"East",6,2,69
+"West",6,2,72
+"Midwest",6,2,68
+"South",6,2,69
+"Final Four",6,2,68
+"East",7,2,70
+"West",7,2,73
+"Midwest",7,2,68
+"South",7,2,70
+"Final Four",7,2,69
+"East",8,2,70
+"West",8,2,70
+"Midwest",8,2,68
+"South",8,2,69
+"Final Four",8,2,70
+"East",9,2,69
+"West",9,2,66
+"Midwest",9,2,66
+"South",9,2,66
+"Final Four",9,2,69
+"East",10,2,67
+"West",10,2,66
+"Midwest",10,2,65
+"South",10,2,68
+"Final Four",10,2,67
+"East",11,2,68
+"West",11,2,65
+"Midwest",11,2,65
+"South",11,2,66
+"Final Four",11,2,68
+"East",12,2,67
+"West",12,2,65
+"Midwest",12,2,67
+"South",12,2,67
+"Final Four",12,2,68
+"East",13,2,63
+"West",13,2,65
+"Midwest",13,2,64
+"South",13,2,66
+"Final Four",13,2,64
+"East",14,2,59
+"West",14,2,64
+"Midwest",14,2,63
+"South",14,2,64
+"Final Four",14,2,61
+"East",15,2,61
+"West",15,2,63
+"Midwest",15,2,63
+"South",15,2,67
+"Final Four",15,2,62
+"East",16,2,61
+"West",16,2,59
+"Midwest",16,2,61
+"South",16,2,62
+"Final Four",16,2,62
+"East",1,3,72
+"West",1,3,75
+"Midwest",1,3,74
+"South",1,3,73
+"Final Four",1,3,75
+"East",2,3,68
+"West",2,3,73
+"Midwest",2,3,69
+"South",2,3,74
+"Final Four",2,3,67
+"East",3,3,70
+"West",3,3,71
+"Midwest",3,3,69
+"South",3,3,74
+"Final Four",3,3,69
+"East",4,3,67
+"West",4,3,70
+"Midwest",4,3,69
+"South",4,3,72
+"Final Four",4,3,67
+"East",5,3,69
+"West",5,3,69
+"Midwest",5,3,74
+"South",5,3,71
+"Final Four",5,3,69
+"East",6,3,68
+"West",6,3,70
+"Midwest",6,3,69
+"South",6,3,69
+"Final Four",6,3,68
+"East",7,3,69
+"West",7,3,70
+"Midwest",7,3,67
+"South",7,3,69
+"Final Four",7,3,68
+"East",8,3,69
+"West",8,3,68
+"Midwest",8,3,66
+"South",8,3,67
+"Final Four",8,3,68
+"East",9,3,69
+"West",9,3,66
+"Midwest",9,3,64
+"South",9,3,65
+"Final Four",9,3,68
+"East",10,3,68
+"West",10,3,66
+"Midwest",10,3,64
+"South",10,3,66
+"Final Four",10,3,67
+"East",11,3,69
+"West",11,3,66
+"Midwest",11,3,62
+"South",11,3,63
+"Final Four",11,3,68
+"East",12,3,68
+"West",12,3,65
+"Midwest",12,3,63
+"South",12,3,62
+"Final Four",12,3,67
+"East",13,3,64
+"West",13,3,65
+"Midwest",13,3,62
+"South",13,3,63
+"Final Four",13,3,65
+"East",14,3,62
+"West",14,3,65
+"Midwest",14,3,62
+"South",14,3,64
+"Final Four",14,3,63
+"East",15,3,63
+"West",15,3,65
+"Midwest",15,3,63
+"South",15,3,66
+"Final Four",15,3,64
+"East",16,3,63
+"West",16,3,61
+"Midwest",16,3,61
+"South",16,3,62
+"Final Four",16,3,63
+"East",1,4,68
+"West",1,4,74
+"Midwest",1,4,76
+"South",1,4,75
+"Final Four",1,4,74
+"East",2,4,65
+"West",2,4,71
+"Midwest",2,4,71
+"South",2,4,73
+"Final Four",2,4,66
+"East",3,4,66
+"West",3,4,69
+"Midwest",3,4,70
+"South",3,4,71
+"Final Four",3,4,66
+"East",4,4,64
+"West",4,4,69
+"Midwest",4,4,70
+"South",4,4,70
+"Final Four",4,4,66
+"East",5,4,65
+"West",5,4,69
+"Midwest",5,4,73
+"South",5,4,70
+"Final Four",5,4,67
+"East",6,4,64
+"West",6,4,69
+"Midwest",6,4,69
+"South",6,4,68
+"Final Four",6,4,65
+"East",7,4,64
+"West",7,4,69
+"Midwest",7,4,68
+"South",7,4,68
+"Final Four",7,4,65
+"East",8,4,63
+"West",8,4,68
+"Midwest",8,4,66
+"South",8,4,67
+"Final Four",8,4,65
+"East",9,4,62
+"West",9,4,66
+"Midwest",9,4,64
+"South",9,4,65
+"Final Four",9,4,64
+"East",10,4,62
+"West",10,4,67
+"Midwest",10,4,64
+"South",10,4,66
+"Final Four",10,4,64
+"East",11,4,63
+"West",11,4,68
+"Midwest",11,4,63
+"South",11,4,65
+"Final Four",11,4,65
+"East",12,4,63
+"West",12,4,67
+"Midwest",12,4,64
+"South",12,4,64
+"Final Four",12,4,65
+"East",13,4,61
+"West",13,4,67
+"Midwest",13,4,63
+"South",13,4,65
+"Final Four",13,4,63
+"East",14,4,59
+"West",14,4,67
+"Midwest",14,4,63
+"South",14,4,65
+"Final Four",14,4,62
+"East",15,4,60
+"West",15,4,66
+"Midwest",15,4,63
+"South",15,4,67
+"Final Four",15,4,63
+"East",16,4,60
+"West",16,4,63
+"Midwest",16,4,62
+"South",16,4,64
+"Final Four",16,4,63
+"East",1,5,71
+"West",1,5,75
+"Midwest",1,5,77
+"South",1,5,76
+"Final Four",1,5,77
+"East",2,5,65
+"West",2,5,70
+"Midwest",2,5,69
+"South",2,5,71
+"Final Four",2,5,65
+"East",3,5,66
+"West",3,5,69
+"Midwest",3,5,69
+"South",3,5,70
+"Final Four",3,5,66
+"East",4,5,65
+"West",4,5,69
+"Midwest",4,5,69
+"South",4,5,69
+"Final Four",4,5,66
+"East",5,5,66
+"West",5,5,69
+"Midwest",5,5,71
+"South",5,5,69
+"Final Four",5,5,66
+"East",6,5,65
+"West",6,5,69
+"Midwest",6,5,69
+"South",6,5,68
+"Final Four",6,5,67
+"East",7,5,66
+"West",7,5,69
+"Midwest",7,5,68
+"South",7,5,69
+"Final Four",7,5,67
+"East",8,5,66
+"West",8,5,69
+"Midwest",8,5,68
+"South",8,5,68
+"Final Four",8,5,67
+"East",9,5,66
+"West",9,5,68
+"Midwest",9,5,68
+"South",9,5,68
+"Final Four",9,5,68
+"East",10,5,66
+"West",10,5,69
+"Midwest",10,5,67
+"South",10,5,69
+"Final Four",10,5,68
+"East",11,5,67
+"West",11,5,70
+"Midwest",11,5,67
+"South",11,5,68
+"Final Four",11,5,70
+"East",12,5,67
+"West",12,5,69
+"Midwest",12,5,68
+"South",12,5,67
+"Final Four",12,5,69
+"East",13,5,65
+"West",13,5,69
+"Midwest",13,5,66
+"South",13,5,68
+"Final Four",13,5,67
+"East",14,5,63
+"West",14,5,68
+"Midwest",14,5,66
+"South",14,5,68
+"Final Four",14,5,66
+"East",15,5,64
+"West",15,5,68
+"Midwest",15,5,66
+"South",15,5,69
+"Final Four",15,5,67
+"East",16,5,64
+"West",16,5,66
+"Midwest",16,5,65
+"South",16,5,66
+"Final Four",16,5,66
+"East",1,6,73
+"West",1,6,76
+"Midwest",1,6,77
+"South",1,6,76
+"Final Four",1,6,78
+"East",2,6,69
+"West",2,6,73
+"Midwest",2,6,72
+"South",2,6,73
+"Final Four",2,6,71
+"East",3,6,69
+"West",3,6,71
+"Midwest",3,6,72
+"South",3,6,72
+"Final Four",3,6,71
+"East",4,6,68
+"West",4,6,71
+"Midwest",4,6,72
+"South",4,6,72
+"Final Four",4,6,71
+"East",5,6,68
+"West",5,6,71
+"Midwest",5,6,73
+"South",5,6,72
+"Final Four",5,6,71
+"East",6,6,68
+"West",6,6,71
+"Midwest",6,6,71
+"South",6,6,71
+"Final Four",6,6,71
+"East",7,6,69
+"West",7,6,71
+"Midwest",7,6,71
+"South",7,6,71
+"Final Four",7,6,71
+"East",8,6,69
+"West",8,6,71
+"Midwest",8,6,71
+"South",8,6,71
+"Final Four",8,6,71
+"East",9,6,69
+"West",9,6,70
+"Midwest",9,6,70
+"South",9,6,70
+"Final Four",9,6,71
+"East",10,6,69
+"West",10,6,71
+"Midwest",10,6,70
+"South",10,6,71
+"Final Four",10,6,71
+"East",11,6,69
+"West",11,6,72
+"Midwest",11,6,70
+"South",11,6,70
+"Final Four",11,6,72
+"East",12,6,69
+"West",12,6,71
+"Midwest",12,6,70
+"South",12,6,70
+"Final Four",12,6,72
+"East",13,6,67
+"West",13,6,71
+"Midwest",13,6,69
+"South",13,6,70
+"Final Four",13,6,70
+"East",14,6,65
+"West",14,6,70
+"Midwest",14,6,68
+"South",14,6,69
+"Final Four",14,6,69
+"East",15,6,66
+"West",15,6,70
+"Midwest",15,6,69
+"South",15,6,70
+"Final Four",15,6,69
+"East",16,6,66
+"West",16,6,68
+"Midwest",16,6,68
+"South",16,6,68
+"Final Four",16,6,69
