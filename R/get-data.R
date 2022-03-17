@@ -399,11 +399,14 @@ fin_teams <- function(x){
 #' @importFrom xml2 read_html
 #' @importFrom stringr str_split_fixed
 #' @importFrom tidyr pivot_wider
-get_tournament_scores <- function(league = 'mens', year = NULL){
+get_tournament_scores <- function(league = 'mens', year = NULL, source='espn'){
   # league = 'mens'
-  if(is.null(year)){
-    url = paste0('http://www.espn.com/', league, '-college-basketball/tournament/bracket')
-    
+  if (source=='espn'){
+    if(is.null(year)){
+      url = paste0('http://www.espn.com/', league, '-college-basketball/tournament/bracket')
+    } else {
+      url = paste0('http://www.espn.com/', league, '-college-basketball/tournament/bracket/_/id/', year, '22/', year, '-ncaa-tournament')
+    }
     round1 = read_html(url) %>%
       html_nodes('.round1')
     
