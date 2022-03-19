@@ -358,7 +358,7 @@ results_app <- function(auction_results, starting_points, year=NULL){
         pred_final_data <- pred_final_data()
         
         pred_total_points <- pred_final_data %>% 
-          group_by(rank, team_id, team, owner) %>% 
+          group_by(rank, team_id, team, owner, bid) %>% 
           summarise(score = sum(score, na.rm = TRUE))
         return(pred_total_points)
       })
@@ -399,8 +399,8 @@ results_app <- function(auction_results, starting_points, year=NULL){
                     left_over = starting_points - sum(bid),
                     predicted_points = sum(score)) %>% 
           mutate(left_over = if_else(left_over < 0, 10*left_over, 1*left_over),
-                 final_score = left_over + predicted_points,
-                 rank = rank(-final_score, ties.method = 'min')) %>% data.frame
+                 predicted_final_score = left_over + predicted_points,
+                 predicted_rank = rank(-predicted_final_score, ties.method = 'min')) %>% data.frame
         
         row.names(pred_player_points) = pred_player_points$owner
         pred_player_points$owner <- NULL
@@ -411,7 +411,9 @@ results_app <- function(auction_results, starting_points, year=NULL){
       output$ranking <- DT::renderDataTable({
         player_points <- player_points()
         
-        new_tp <- player_points %>% t
+        new_tp <- player_points %>% 
+          select(predicted_final_score, 
+                 predicted_rank) %>% t
         row.names(new_tp) <- row.names(new_tp) %>% 
           stringr::str_replace('\\_',' ') %>%
           stringr::str_to_title()
