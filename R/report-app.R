@@ -7,6 +7,7 @@
 #' @import shinydashboard
 #' @import shiny
 #' @import dplyr
+#' @importFrom tidyr pivot_wider
 #'
 #' @export
 results_app <- function(auction_results, starting_points, year=NULL){
@@ -36,6 +37,14 @@ results_app <- function(auction_results, starting_points, year=NULL){
                     column(12,
                            box(title = 'Current Standings', status = "primary", solidHeader = TRUE,
                                DT::dataTableOutput("ranking"),
+                               width = 12
+                           )
+                    )
+                  ),
+                  fluidRow(
+                    column(12,
+                           box(title = 'Predicted Ranking', status = "primary", solidHeader = TRUE,
+                               DT::dataTableOutput("pred_ranking"),
                                width = 12
                            )
                     )
@@ -104,6 +113,166 @@ results_app <- function(auction_results, starting_points, year=NULL){
         return(scores)
       })
       
+      pred_scores <- reactive({
+        scores <- scores()
+        
+        scores <- scores %>% 
+          select(-team1_elim,-team2_elim,-game)
+        
+        game_ids <- data.frame(game1_id = rep(1:32, each=1),
+                               game2_id = rep(1:16, each=2),
+                               game3_id = rep(1:8, each=4),
+                               game4_id = rep(1:4, each=8),
+                               game5_id = rep(1:2, each=16),
+                               game6_id = rep(1, each=32))
+        
+        new_dat <- read.csv(system.file("extdata", "pred-scores.csv", package = "NCAAcalcutta"))
+        
+        round1 <- scores %>% 
+          filter(round==1) %>% 
+          bind_cols(game_ids) %>% 
+          left_join(new_dat %>% rename(team1_pred_score=pred_score, team1_prob_win=pred_win),
+                    by = c("round","region","team1_seed"="team_seed","team2_seed")) %>% 
+          left_join(new_dat %>% rename(team2_pred_score=pred_score, team2_prob_win=pred_win),
+                    by = c("round","region","team1_seed"="team2_seed","team2_seed"="team_seed")) %>% 
+          mutate(team1_pred_win = ifelse(team1_pred_score>team2_pred_score, 'W', NA),
+                 team2_pred_win = ifelse(team1_pred_score<team2_pred_score, 'W', NA))
+        
+        winners_round1 <- round1 %>% 
+          filter(!is.na(team1_win) | (is.na(team1_win) & is.na(team2_win) & !is.na(team1_pred_win))) %>% 
+          select(game1_id, game2_id, game3_id, game4_id, game5_id, game6_id,
+                 seed=team1_seed,
+                 id=team1_id,
+                 round,
+                 region) %>% 
+          bind_rows(round1 %>% 
+                      filter(!is.na(team2_win) | (is.na(team1_win) & is.na(team2_win) & !is.na(team2_pred_win))) %>% 
+                      select(game1_id, game2_id, game3_id, game4_id, game5_id, game6_id,
+                             seed=team2_seed,
+                             id=team2_id,
+                             round,
+                             region) ) %>% 
+          arrange(game1_id, game2_id) %>% 
+          select(-game1_id) %>% 
+          mutate(name = paste0('team', rep(1:2,16))) %>% 
+          pivot_wider(names_from = name, values_from = c(seed, id), names_glue = "{name}_{.value}") %>% 
+          left_join(new_dat %>% rename(team1_pred_score=pred_score, team1_prob_win=pred_win),
+                    by = c("round","region","team1_seed"="team_seed","team2_seed")) %>% 
+          left_join(new_dat %>% rename(team2_pred_score=pred_score, team2_prob_win=pred_win),
+                    by = c("round","region","team1_seed"="team2_seed","team2_seed"="team_seed")) %>% 
+          mutate(team1_pred_win = ifelse(team1_pred_score>team2_pred_score, 'W', NA),
+                 team2_pred_win = ifelse(team1_pred_score<team2_pred_score, 'W', NA))
+        
+        round2 <- winners_round1 %>% 
+          left_join(scores %>% 
+                      filter(round==2)) %>% 
+          mutate(round=2)
+        
+        winners_round2 <- round2 %>% 
+          filter(!is.na(team1_win) | (is.na(team1_win) & is.na(team2_win) & !is.na(team1_pred_win))) %>% 
+          select(game2_id, game3_id, game4_id, game5_id, game6_id,
+                 seed=team1_seed,
+                 id=team1_id,
+                 round,
+                 region) %>% 
+          bind_rows(round2 %>% 
+                      filter(!is.na(team2_win) | (is.na(team1_win) & is.na(team2_win) & !is.na(team2_pred_win))) %>% 
+                      select(game2_id, game3_id, game4_id, game5_id, game6_id,
+                             seed=team2_seed,
+                             id=team2_id,
+                             round,
+                             region)) %>% 
+          arrange(game2_id, game3_id) %>% 
+          select(-game2_id) %>% 
+          mutate(name = paste0('team', rep(1:2,8))) %>% 
+          pivot_wider(names_from = name, values_from = c(seed, id), names_glue = "{name}_{.value}") %>% 
+          left_join(new_dat %>% rename(team1_pred_score=pred_score, team1_prob_win=pred_win),
+                    by = c("round","region","team1_seed"="team_seed","team2_seed")) %>% 
+          left_join(new_dat %>% rename(team2_pred_score=pred_score, team2_prob_win=pred_win),
+                    by = c("round","region","team1_seed"="team2_seed","team2_seed"="team_seed")) %>% 
+          mutate(team1_pred_win = ifelse(team1_pred_score>team2_pred_score, 'W', NA),
+                 team2_pred_win = ifelse(team1_pred_score<team2_pred_score, 'W', NA))
+        
+        round3 <- winners_round2 %>% 
+          left_join(scores %>% 
+                      filter(round==3)) %>% 
+          mutate(round=3)
+        
+        winners_round3 <- round3 %>% 
+          filter(!is.na(team1_win) | (is.na(team1_win) & is.na(team2_win) & !is.na(team1_pred_win))) %>% 
+          select(game3_id, game4_id, game5_id, game6_id,
+                 seed=team1_seed,
+                 id=team1_id,
+                 round,
+                 region) %>% 
+          bind_rows(round3 %>% 
+                      filter(!is.na(team2_win) | (is.na(team1_win) & is.na(team2_win) & !is.na(team2_pred_win))) %>% 
+                      select(game3_id, game4_id, game5_id, game6_id,
+                             seed=team2_seed,
+                             id=team2_id,
+                             round,
+                             region)) %>% 
+          arrange(game3_id, game4_id) %>% 
+          select(-game3_id) %>% 
+          mutate(name = paste0('team', rep(1:2,4))) %>% 
+          pivot_wider(names_from = name, values_from = c(seed, id), names_glue = "{name}_{.value}") %>% 
+          left_join(new_dat %>% rename(team1_pred_score=pred_score, team1_prob_win=pred_win),
+                    by = c("round","region","team1_seed"="team_seed","team2_seed")) %>% 
+          left_join(new_dat %>% rename(team2_pred_score=pred_score, team2_prob_win=pred_win),
+                    by = c("round","region","team1_seed"="team2_seed","team2_seed"="team_seed")) %>% 
+          mutate(team1_pred_win = ifelse(team1_pred_score>team2_pred_score, 'W', NA),
+                 team2_pred_win = ifelse(team1_pred_score<team2_pred_score, 'W', NA))
+        
+        round4 <- winners_round3 %>% 
+          left_join(scores %>% 
+                      filter(round==4)) %>% 
+          mutate(round=4)
+        
+        winners_round4 <- round4 %>% 
+          filter(!is.na(team1_win) | (is.na(team1_win) & is.na(team2_win) & !is.na(team1_pred_win))) %>% 
+          select(game4_id, game5_id, game6_id,
+                 seed=team1_seed,
+                 id=team1_id,
+                 round) %>% 
+          mutate(region="Final Four") %>% 
+          bind_rows(round4 %>% 
+                      filter(!is.na(team2_win) | (is.na(team1_win) & is.na(team2_win) & !is.na(team2_pred_win))) %>% 
+                      select(game4_id, game5_id, game6_id,
+                             seed=team2_seed,
+                             id=team2_id,
+                             round) %>% 
+                      mutate(region="Final Four")) %>% 
+          arrange(game4_id, game5_id) %>% 
+          select(-game4_id) %>% 
+          mutate(name = paste0('team', rep(1:2,2))) %>% 
+          pivot_wider(names_from = name, values_from = c(seed, id), names_glue = "{name}_{.value}") %>% 
+          left_join(new_dat %>% rename(team1_pred_score=pred_score, team1_prob_win=pred_win),
+                    by = c("round","region","team1_seed"="team_seed","team2_seed")) %>% 
+          left_join(new_dat %>% rename(team2_pred_score=pred_score, team2_prob_win=pred_win),
+                    by = c("round","region","team1_seed"="team2_seed","team2_seed"="team_seed")) %>% 
+          mutate(team1_pred_win = ifelse(team1_pred_score>team2_pred_score, 'W', NA),
+                 team2_pred_win = ifelse(team1_pred_score<team2_pred_score, 'W', NA),
+                 team1_pred_score = 1.75*team1_pred_score,
+                 team2_pred_score = 1.75*team2_pred_score)
+        
+        round5 <- winners_round4 %>% 
+          left_join(scores %>% 
+                      filter(round==5)) %>% 
+          mutate(round=5)
+        
+        pred_scores <- bind_rows(round1 %>% select(-starts_with('game')),
+                                            round2 %>% select(-starts_with('game')),
+                                            round3 %>% select(-starts_with('game')),
+                                            round4 %>% select(-starts_with('game')),
+                                            round5 %>% select(-starts_with('game'))) %>% 
+          mutate(team1_score = coalesce(team1_score, team1_pred_score),
+                 team2_score = coalesce(team2_score, team2_pred_score),
+                 team1_win = ifelse(is.na(team1_win) & is.na(team2_win), team1_pred_win, as.character(team1_win)),
+                 team2_win = ifelse(is.na(team1_win) & is.na(team2_win), team2_pred_win, as.character(team2_win)))
+        
+        return(pred_scores)
+      })
+      
       final_data <- reactive({
         scores <- scores()
         
@@ -144,6 +313,37 @@ results_app <- function(auction_results, starting_points, year=NULL){
         return(final_data)
       })
       
+      pred_final_data <- reactive({
+        pred_scores <- pred_scores()
+        
+        scores_id1 <- pred_scores %>% 
+          filter(round==1) %>% 
+          select(region, rank=team1_seed, team_id=team1_id)
+        
+        scores_id2 <- pred_scores %>% 
+          filter(round==1) %>% 
+          select(region, rank=team2_seed, team_id=team2_id)
+        
+        scores_id <- scores_id1 %>% bind_rows(scores_id2)
+        
+        
+        teams_with_id <- auction_results %>% 
+          left_join(scores_id, by=c("rank","region")) %>% 
+          select(-rank, -region)
+        
+        t1_scores <- pred_scores %>% 
+          select(round, region, rank = team1_seed, team_id = team1_id, score = team1_score, win=team1_win) %>% 
+          left_join(teams_with_id %>% filter(complete.cases(.)), by=c("team_id"))
+        
+        t2_scores <- pred_scores %>% 
+          select(round, region, rank = team2_seed, team_id = team2_id, score = team2_score, win=team2_win) %>% 
+          left_join(teams_with_id %>% filter(complete.cases(.)), by=c("team_id"))
+        
+        pred_final_data <- t1_scores %>% bind_rows(t2_scores)  
+        
+        return(pred_final_data)
+      })
+      
       total_points <- reactive({
         final_data <- final_data()
         
@@ -152,6 +352,15 @@ results_app <- function(auction_results, starting_points, year=NULL){
           summarise(score = sum(score, na.rm = TRUE), eliminated = !all(!eliminated)) %>% 
           mutate(realized_loss_or_gain = if_else(eliminated, score - bid, as.numeric(NA)))
         return(total_points)
+      })
+      
+      pred_total_points <- reactive({
+        pred_final_data <- pred_final_data()
+        
+        pred_total_points <- pred_final_data %>% 
+          group_by(rank, team_id, team, owner) %>% 
+          summarise(score = sum(score, na.rm = TRUE))
+        return(pred_total_points)
       })
       
       output$select_owner <- renderUI({
@@ -180,10 +389,51 @@ results_app <- function(auction_results, starting_points, year=NULL){
         return(player_points)
       })
       
+      pred_player_points <- reactive({
+        pred_total_points <- pred_total_points()
+        
+        pred_player_points <- pred_total_points %>% 
+          filter(!is.na(owner)) %>% 
+          group_by(owner) %>% 
+          summarise(spent = sum(bid),
+                    left_over = starting_points - sum(bid),
+                    predicted_points = sum(score)) %>% 
+          mutate(left_over = if_else(left_over < 0, 10*left_over, 1*left_over),
+                 final_score = left_over + predicted_points,
+                 rank = rank(-final_score, ties.method = 'min')) %>% data.frame
+        
+        row.names(pred_player_points) = pred_player_points$owner
+        pred_player_points$owner <- NULL
+        return(pred_player_points)
+      })
+      
+      
       output$ranking <- DT::renderDataTable({
         player_points <- player_points()
         
         new_tp <- player_points %>% t
+        row.names(new_tp) <- row.names(new_tp) %>% 
+          stringr::str_replace('\\_',' ') %>%
+          stringr::str_to_title()
+        
+        
+        datatable(new_tp, options = list(
+          initComplete = JS(
+            "function(settings, json) {",
+            "$(this.api().table().header()).css({'background-color': '#000', 'color': '#fff'});",
+            "}"), 
+          searching = FALSE,
+          ordering = FALSE,
+          paging = FALSE,
+          info = FALSE
+        ))
+      })
+      
+      
+      output$pred_ranking <- DT::renderDataTable({
+        pred_player_points <- pred_player_points()
+        
+        new_tp <- pred_player_points %>% t
         row.names(new_tp) <- row.names(new_tp) %>% 
           stringr::str_replace('\\_',' ') %>%
           stringr::str_to_title()
