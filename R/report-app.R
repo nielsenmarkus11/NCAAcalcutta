@@ -411,9 +411,7 @@ results_app <- function(auction_results, starting_points, year=NULL){
       output$ranking <- DT::renderDataTable({
         player_points <- player_points()
         
-        new_tp <- player_points %>% 
-          select(predicted_final_score, 
-                 predicted_rank) %>% t
+        new_tp <- player_points %>% t
         row.names(new_tp) <- row.names(new_tp) %>% 
           stringr::str_replace('\\_',' ') %>%
           stringr::str_to_title()
@@ -435,7 +433,9 @@ results_app <- function(auction_results, starting_points, year=NULL){
       output$pred_ranking <- DT::renderDataTable({
         pred_player_points <- pred_player_points()
         
-        new_tp <- pred_player_points %>% t
+        new_tp <- pred_player_points %>% 
+          select(predicted_final_score, 
+                 predicted_rank) %>% t
         row.names(new_tp) <- row.names(new_tp) %>% 
           stringr::str_replace('\\_',' ') %>%
           stringr::str_to_title()
