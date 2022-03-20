@@ -163,7 +163,8 @@ results_app <- function(auction_results, starting_points, year=NULL){
           mutate(team1_pred_win = ifelse(team1_pred_score>team2_pred_score, 'W', NA),
                  team2_pred_win = ifelse(team1_pred_score<team2_pred_score, 'W', NA))
         
-        round2 <- winners_round1 %>% 
+        round2 <- winners_round1 %>%
+          select(-round) %>% 
           left_join(scores %>% 
                       filter(round==2)) %>% 
           mutate(round=2)
@@ -194,6 +195,7 @@ results_app <- function(auction_results, starting_points, year=NULL){
                  team2_pred_win = ifelse(team1_pred_score<team2_pred_score, 'W', NA))
         
         round3 <- winners_round2 %>% 
+          select(-round) %>% 
           left_join(scores %>% 
                       filter(round==3)) %>% 
           mutate(round=3)
@@ -223,7 +225,8 @@ results_app <- function(auction_results, starting_points, year=NULL){
           mutate(team1_pred_win = ifelse(team1_pred_score>team2_pred_score, 'W', NA),
                  team2_pred_win = ifelse(team1_pred_score<team2_pred_score, 'W', NA))
         
-        round4 <- winners_round3 %>% 
+        round4 <- winners_round3 %>%
+          select(-round) %>%  
           left_join(scores %>% 
                       filter(round==4)) %>% 
           mutate(round=4)
@@ -256,6 +259,7 @@ results_app <- function(auction_results, starting_points, year=NULL){
                  team2_pred_score = 1.75*team2_pred_score)
         
         round5 <- winners_round4 %>% 
+          select(-round) %>% 
           left_join(scores %>% 
                       filter(round==5)) %>% 
           mutate(round=5)
@@ -413,7 +417,7 @@ results_app <- function(auction_results, starting_points, year=NULL){
         
         new_tp <- player_points %>% t
         row.names(new_tp) <- row.names(new_tp) %>% 
-          stringr::str_replace('\\_',' ') %>%
+          stringr::str_replace_all('\\_',' ') %>%
           stringr::str_to_title()
         
         
@@ -437,7 +441,7 @@ results_app <- function(auction_results, starting_points, year=NULL){
           select(predicted_final_score, 
                  predicted_rank) %>% t
         row.names(new_tp) <- row.names(new_tp) %>% 
-          stringr::str_replace('\\_',' ') %>%
+          stringr::str_replace_all('\\_',' ') %>%
           stringr::str_to_title()
         
         
