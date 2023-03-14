@@ -1,4 +1,4 @@
-bracket <- get_tournament_scores()
+bracket <- get_tournament_scores_api(year=2023)
 team_names <- scrape_teams('mens')
 
 library(dplyr)
@@ -46,4 +46,4 @@ teams <- teams %>% arrange(region, rank)
 
 start_auction(teams, c("Mark", "Marko", "Marky", "Markus"), 1800)
 
-write.csv(teams,file="inst/extdata/ncaa-teams-2022.csv", row.names = FALSE)
+write.csv(teams,file="inst/extdata/ncaa-teams-2023.csv", row.names = FALSE)
