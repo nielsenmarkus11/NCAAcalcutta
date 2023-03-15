@@ -10,34 +10,28 @@ teams1 <- bracket %>%
                 region = stringi::stri_trans_totitle(region))
 
 teams2 <- bracket %>%
-  dplyr::mutate(match_id = row_number()) %>% 
   dplyr::filter(round == 1) %>% 
-  dplyr::select(match_id, rank = team2_seed, region, team2_id) %>% 
-  left_join(team_names, by = c('team2_id'='id')) %>%
-  # left_join(team_names, by = c('team3_id'='id')) %>%
+  dplyr::select(game_id, rank = team2_seed, region, logo=team2_logo, team=team2_displayName) %>% 
   dplyr::mutate(rank = as.numeric(as.character(rank)),
-                region = stringi::stri_trans_totitle(region),
-                # name = paste0(name.x,ifelse(is.na(name.y),"",paste0('/',name.y)))
-                ) %>%
-  dplyr::select(match_id, rank, region, team=name)
+                region = stringi::stri_trans_totitle(region))
 
 # Find Opponent
 t1opp <- teams2 %>% 
-  dplyr::select(match_id, opponent = team)
+  dplyr::select(game_id, opponent = team, opponent_logo = logo)
 teams1 <- teams1 %>% 
-  left_join(t1opp, by='match_id')
+  left_join(t1opp, by='game_id')
 
 t2opp <- teams1 %>% 
-  dplyr::select(match_id, opponent = team)
+  dplyr::select(game_id, opponent = team, opponent_logo = logo)
 teams2 <- teams2 %>% 
-  left_join(t2opp, by='match_id')
+  left_join(t2opp, by='game_id')
 
 
 
 teams <- bind_rows(teams1, teams2) %>% 
   arrange(region, rank)
 
-teams$match_id <- NULL
+teams$game_id <- NULL
 
 # teams <- edit(teams)
 teams <- teams %>% arrange(region, rank)
