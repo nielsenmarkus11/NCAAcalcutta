@@ -34,6 +34,7 @@ teams$game_id <- NULL
 
 # teams <- edit(teams)
 teams <- teams %>% arrange(region, rank)
+# teams <- import_teams(system.file("extdata", "ncaa-teams-2023.csv", package = "NCAAcalcutta"))
 players <- c("Mark", "Marko", "Marky", "Markus")
 prior_bracket <- get_tournament_scores_api(year=2022)
 points <- ceiling((sum(prior_bracket$team1_score + prior_bracket$team2_score) * 0.8)/length(players)/50)*50
