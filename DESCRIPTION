@@ -1,8 +1,8 @@
 Package: NCAAcalcutta
 Type: Package
 Title: NCAA March Madness Calcutta App
-Version: 1.2.2
-Date: 2022-03-13
+Version: 1.2.3
+Date: 2023-03-14
 Author: Mark Nielsen 
 Maintainer: Mark Nielsen <mn9999999999@gmail.com>
 Description: Mix up your office March Madness competition this year by setting up a calcutta auction.  This app will help you keep track of bids in the auction process.

@@ -9,10 +9,11 @@ remotes::install_github('nielsenmarkus11/NCAAcalcutta')
 You'll need to get the latest data, but here is how you can run the Calcutta auction app:
 ```
 library(NCAAcalcutta)
-# Input the 2019 teams and run the auction app
-teams <- import_teams(system.file("extdata", "ncaa-teams-2022.csv", package = "NCAAcalcutta"))
+# Input this years teams and run the auction app
+teams <- import_teams(system.file("extdata", "ncaa-teams-2023.csv", package = "NCAAcalcutta"))
 players <- c('Mark','Markus','Marko','Marky')
-points <- 1200
+prior_bracket <- get_tournament_scores_api(year=2022)
+points <- ceiling((sum(prior_bracket$team1_score + prior_bracket$team2_score) * 0.8)/length(players)/50)*50
 start_auction(teams, players, points)
 ```
 
