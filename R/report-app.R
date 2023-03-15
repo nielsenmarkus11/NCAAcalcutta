@@ -106,7 +106,6 @@ results_app <- function(auction_results, starting_points, year=NULL){
       scores <-  reactive({
         input$goButton
         scores <- NCAAcalcutta::get_tournament_scores_api(year=year) %>% 
-          select(-team1_logo, -team2_logo, -team1_conferenceId, -team2_conferenceId, -team1_displayName, -team2_displayName) %>% 
           mutate(team1_elim = if_else(team2_win=='W', TRUE, FALSE, FALSE),
                  team2_elim = if_else(team1_win=='W', TRUE, FALSE, FALSE),
                  game = row_number(),
@@ -289,7 +288,7 @@ results_app <- function(auction_results, starting_points, year=NULL){
           filter(round==1) %>% 
           select(region, rank=team2_seed, team_id=team2_id)
         
-        scores_id <- scores_id1 %>% bind_rows(scores_id2)
+        scores_id <- scores_id1 %>% bind_rows(scores_id2) %>% filter(team_id!=-2)
         
         
         teams_with_id <- auction_results %>% 
@@ -329,7 +328,7 @@ results_app <- function(auction_results, starting_points, year=NULL){
           filter(round==1) %>% 
           select(region, rank=team2_seed, team_id=team2_id)
         
-        scores_id <- scores_id1 %>% bind_rows(scores_id2)
+        scores_id <- scores_id1 %>% bind_rows(scores_id2) %>% filter(team_id!=-2)
         
         
         teams_with_id <- auction_results %>% 
@@ -355,7 +354,8 @@ results_app <- function(auction_results, starting_points, year=NULL){
         total_points <- final_data %>% 
           group_by(rank, team_id, team, owner, bid) %>% 
           summarise(score = sum(score, na.rm = TRUE), eliminated = !all(!eliminated)) %>% 
-          mutate(realized_loss_or_gain = if_else(eliminated, score - bid, as.numeric(NA)))
+          mutate(realized_loss_or_gain = if_else(eliminated, score - bid, as.numeric(NA))) %>% 
+          filter(rank!=99)
         return(total_points)
       })
       
@@ -492,7 +492,7 @@ results_app <- function(auction_results, starting_points, year=NULL){
         
         paid_by_seed <- total_points %>% 
           group_by(rank) %>% 
-          summarise(bid = mean(bid))
+          summarise(bid = mean(bid, na.rm=T))
         
         g <- ggplot() +
           geom_line(aes(x=rank, y=bid), data = paid_by_seed, color = "black", size = 2) +

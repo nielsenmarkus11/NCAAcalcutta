@@ -7,10 +7,10 @@ library(xml2)
 library(rvest)
 
 # Run the report
-teams <- read.csv("data/teams-out-home.csv")
+teams <- read.csv("~/../Downloads/teams-out.csv")
 teams <- teams %>% 
   select(-X, -group, -opponent) %>% 
   filter(!is.na(bid))
 
-results_app(teams, 1175)
+results_app(teams, 650, 2023)
 
