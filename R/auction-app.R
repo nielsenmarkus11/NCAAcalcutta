@@ -21,9 +21,22 @@
 #' @import shiny
 #' @import iterators
 #' @importFrom shinyalert shinyalert
+#' @import bslib
 #' 
 #' @export
 start_auction <- function(teams, players, points, randomize=TRUE, random_seed=156){
+  
+  my_bs_theme <- bs_theme(
+    version = 4, 
+    primary = "#4c9be8", 
+    heading_font = font_collection(font_google("Montserrat"), 
+                                   "-apple-system", "system-ui", "BlinkMacSystemFont", "Segoe UI", 
+                                   font_google("Roboto"), "Helvetica Neue", "Arial", "sans-serif"), 
+    font_scale = NULL, 
+    `enable-transitions` = FALSE, 
+    bootswatch = "superhero"
+  )
+  
   
   if (randomize) {
     teams <- randomize_teams(teams, random_seed=random_seed)
@@ -37,37 +50,44 @@ start_auction <- function(teams, players, points, randomize=TRUE, random_seed=15
   
   runApp(list(
     # Define UI for application that draws a histogram
-    ui = fluidPage(
-      
-      # Application title
-      titlePanel("NCAA Calcutta Competition"),
-      
-      # Sidebar with a slider input for number of bins 
-      wellPanel(
-        fluidRow(
-          column(4,
-                 selectizeInput("owner","Bid Winner:", choices = players),
-                 textInput("cost","Cost:"),
-                 actionButton("submit","Submit")),
-          column(4,
-                 h2(htmlOutput("team")),
-                 h3(textOutput("minbid")),
-                 h4(textOutput("rank")),
-                 h4(textOutput("region")),
-                 h4(htmlOutput("opponent"))),
-          column(4,
-                 h2(htmlOutput("timer")),
-                 actionButton("nextteam","Next Team"),
-                 actionButton("lastteam","Back")
-          )
-        )
-      ),
-      
-      # Show a plot of the generated distribution
-      fluidRow(
-        downloadButton('download',"Download the data"),
-        dataTableOutput("table")
-      )
+    ui = fluidPage(theme = my_bs_theme, 
+                   
+                   # Application title
+                   titlePanel("NCAA Calcutta Auction"),
+                   
+                   # Sidebar with a slider input for number of bins 
+                   wellPanel(
+                     fluidRow(
+                       column(3,
+                              selectizeInput("owner","Bid Winner:", choices = players),
+                              textInput("cost","Cost:"),
+                              actionButton("submit","Submit", class = "btn-dark")),
+                       column(1),
+                       column(4,
+                              h2(htmlOutput("team")),
+                              h3(textOutput("minbid")),
+                              h4(textOutput("rank")),
+                              h4(textOutput("region")),
+                              h4(htmlOutput("opponent"))),
+                       column(4,
+                              h2(htmlOutput("timer")),
+                              actionButton("nextteam","Next Team", class = "btn-dark"),
+                              actionButton("lastteam","Back", class = "btn-danger")
+                       )
+                     )
+                   ),
+                   
+                   # Show a plot of the generated distribution
+                   fluidRow(
+                     column(12,
+                            downloadButton('download',"Download the data", class = "btn-dark")
+                     )
+                   ),
+                   fluidRow(
+                     column(12, 
+                            tableOutput("table")
+                     )
+                   )
     )
     ,
     # Define server logic required to draw a histogram
@@ -107,9 +127,9 @@ start_auction <- function(teams, players, points, randomize=TRUE, random_seed=15
         input$nextteam
         input$lastteam
         # tmp <- curr.row()
-        paste0("<img src=\"", teams$logo[i], "\"  width=\"100\" height=\"100\"> <font color=\"#FF0000\">",
+        paste0("<p class=\"text-success\"> <img src=\"", teams$logo[i], "\"  width=\"100\" height=\"100\"> ",
                teams$team[i],
-               "</font>"
+               "</p>"
                # as.character(tmp$team)
         )
       })
@@ -157,9 +177,9 @@ start_auction <- function(teams, players, points, randomize=TRUE, random_seed=15
       output$timer <- renderText({
         eventTime <- last.time()
         invalidateLater(1000,session)
-        paste0("Time Remaining: <font color=\"#0000FF\">", 
+        paste0("Time Remaining: <p class=\"text-primary\">", 
                round(difftime(eventTime, Sys.time(),units = 'secs')),
-               '</font> seconds'
+               ' seconds</p>'
         )
       })
       
@@ -204,9 +224,9 @@ start_auction <- function(teams, players, points, randomize=TRUE, random_seed=15
         }
       })
       
-      output$table <- renderDataTable({
+      output$table <- renderTable({
         thedata()
-      },options = list(searching=F, paging = F, sort = F))
+      }, class = 'table table-hover', options = list(searching = F, paging = F, sort = F))
       
       output$download <- downloadHandler(
         filename = function(){"teams-out.csv"},
@@ -217,6 +237,4 @@ start_auction <- function(teams, players, points, randomize=TRUE, random_seed=15
     }),
     launch.browser = T
   )
-  
-  
 }

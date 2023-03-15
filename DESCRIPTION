@@ -21,5 +21,6 @@ Imports:
   shinyalert,
   tidyr,
   xml2,
-  httr
+  httr, 
+  bslib
 RoxygenNote: 7.2.3
