@@ -4,7 +4,7 @@
 \alias{start_auction}
 \title{Start the NCAA Calcutta Shiny App}
 \usage{
-start_auction(teams, players, points, randomize = TRUE)
+start_auction(teams, players, points, randomize = TRUE, random_seed = 156)
 }
 \arguments{
 \item{teams}{This should be a dataframe with rank, region, team, and opponent}
@@ -15,6 +15,8 @@ start_auction(teams, players, points, randomize = TRUE)
 
 \item{randomize}{(Default: TRUE) This determines whether you'd like to randomize the order of which teams are auctioned
 By default this is a block randomization so that you will get a 1-16 seed before you see the next group of 1-16 seeds}
+
+\item{random_seed}{Set a custom random seed (default = 156)}
 }
 \description{
 This Shiny App will help facilitate the auction

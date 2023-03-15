@@ -7,6 +7,7 @@
 #' @param points This is the total number of points each player starts with
 #' @param randomize  (Default: TRUE) This determines whether you'd like to randomize the order of which teams are auctioned
 #' By default this is a block randomization so that you will get a 1-16 seed before you see the next group of 1-16 seeds
+#' @param random_seed Set a custom random seed (default = 156)
 #' 
 #' @examples 
 #' \dontrun{
@@ -22,10 +23,10 @@
 #' @importFrom shinyalert shinyalert
 #' 
 #' @export
-start_auction <- function(teams, players, points, randomize=TRUE){
+start_auction <- function(teams, players, points, randomize=TRUE, random_seed=156){
   
   if (randomize) {
-    teams <- randomize_teams(teams)
+    teams <- randomize_teams(teams, random_seed=random_seed)
   }
   
   i <- 1
