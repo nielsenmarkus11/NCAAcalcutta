@@ -1,6 +1,5 @@
 library(NCAAcalcutta)
 bracket <- get_tournament_scores_api(year=2023)
-# team_names <- scrape_teams('mens')
 
 library(dplyr)
 teams1 <- bracket %>%
@@ -35,7 +34,9 @@ teams$game_id <- NULL
 
 # teams <- edit(teams)
 teams <- teams %>% arrange(region, rank)
-
-start_auction(teams, c("Mark", "Marko", "Marky", "Markus"), 1800)
+players <- c("Mark", "Marko", "Marky", "Markus")
+prior_bracket <- get_tournament_scores_api(year=2022)
+points <- ceiling((sum(prior_bracket$team1_score + prior_bracket$team2_score) * 0.8)/length(players)/50)*50
+start_auction(teams, players, points)
 
 write.csv(teams,file="inst/extdata/ncaa-teams-2023.csv", row.names = FALSE)

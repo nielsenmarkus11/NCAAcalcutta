@@ -53,7 +53,7 @@ start_auction <- function(teams, players, points, randomize=TRUE){
                  h3(textOutput("minbid")),
                  h4(textOutput("rank")),
                  h4(textOutput("region")),
-                 h4(textOutput("opponent"))),
+                 h4(htmlOutput("opponent"))),
           column(4,
                  h2(htmlOutput("timer")),
                  actionButton("nextteam","Next Team"),
@@ -106,7 +106,7 @@ start_auction <- function(teams, players, points, randomize=TRUE){
         input$nextteam
         input$lastteam
         # tmp <- curr.row()
-        paste0("Current Team: <font color=\"#FF0000\">",
+        paste0("<img src=\"", teams$logo[i], "\"  width=\"100\" height=\"100\"> <font color=\"#FF0000\">",
                teams$team[i],
                "</font>"
                # as.character(tmp$team)
@@ -147,7 +147,7 @@ start_auction <- function(teams, players, points, randomize=TRUE){
         input$nextteam
         input$lastteam
         # tmp <- curr.row()
-        paste0("Opponent: ",
+        paste0("Opponent: <img src=\"", teams$opponent_logo[i], "\"  width=\"50\" height=\"50\"> ",
                teams$opponent[i]
                # as.character(tmp$region)
         )
@@ -168,24 +168,26 @@ start_auction <- function(teams, players, points, randomize=TRUE){
         owner <- isolate(input$owner)
         cost <- isolate(input$cost)
         
+        out_cols <- c("rank", "region", "team", "opponent")
+        
         if(is.null(teams.out)){
           
           if (points - coalesce(as.numeric(cost),0) < 0 ){
             shinyalert("Oops!", paste0(owner," has less than ",cost," points left."), type = "error")
           } else {
-            tmp.dat <- data.frame(teams[i,])
+            tmp.dat <- data.frame(teams[i, out_cols])
             tmp.dat$owner <- owner
             tmp.dat$bid <- cost
-            teams.out <<- rbind(teams.out,tmp.dat)
+            teams.out <<- rbind(teams.out,tmp.dat[FALSE,])
           }
         } else {
           if (points - sum(as.numeric(teams.out[teams.out$owner==owner,"bid"]), na.rm = TRUE) - coalesce(as.numeric(cost),0) < 0 ){
             shinyalert::shinyalert("Oops!", paste0(owner," has less than ",cost," points left."), type = "error")
           } else {
-            tmp.dat <- data.frame(teams[i,])
+            tmp.dat <- data.frame(teams[i, out_cols])
             tmp.dat$owner <- owner
             tmp.dat$bid <- cost
-            teams.out <<- rbind(teams.out,tmp.dat)
+            teams.out <<- rbind(tmp.dat,teams.out)
           }
         }
         
