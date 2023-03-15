@@ -1,14 +1,11 @@
 library(NCAAcalcutta)
 bracket <- get_tournament_scores_api(year=2023)
-team_names <- scrape_teams('mens')
+# team_names <- scrape_teams('mens')
 
 library(dplyr)
 teams1 <- bracket %>%
-  dplyr::mutate(match_id = row_number()) %>% 
   dplyr::filter(round == 1) %>% 
-  dplyr::select(match_id, rank = team1_seed, region, team1_id) %>% 
-  left_join(team_names, by = c('team1_id'='id')) %>%
-  dplyr::select(match_id, rank, region, team=name) %>% 
+  dplyr::select(game_id, rank = team1_seed, region, logo=team1_logo, team=team1_displayName) %>% 
   dplyr::mutate(rank = as.numeric(as.character(rank)),
                 region = stringi::stri_trans_totitle(region))
 

@@ -85,7 +85,8 @@ get_tournament_scores_api <- function(league = 'mens', year = NULL) {
     mutate(team2_seed = ifelse(round ==1 & team2_seed ==99, 17-team1_seed, team2_seed),
            team1_win = ifelse(completed & team1_score>team2_score, 'W', ''),
            team2_win = ifelse(completed & team1_score<team2_score, 'W', '')) %>% 
-    select(round, region, team1_seed, team2_seed, team1_id, team2_id, team1_score, team2_score, team1_logo, team2_logo)
+    select(game_id, round, region, team1_seed, team2_seed, team1_id, team2_id, team1_score, team2_score, team1_logo, team2_logo,
+           team1_displayName, team2_displayName)
  
   return(bracket) 
 }

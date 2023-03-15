@@ -105,7 +105,8 @@ results_app <- function(auction_results, starting_points, year=NULL){
       
       scores <-  reactive({
         input$goButton
-        scores <- NCAAcalcutta::get_tournament_scores(year=year) %>% 
+        scores <- NCAAcalcutta::get_tournament_scores_api(year=year) %>% 
+          select(-team1_logo, -team2_logo, -team1_conferenceId, -team2_conferenceId, -team1_displayName, -team2_displayName) %>% 
           mutate(team1_elim = if_else(team2_win=='W', TRUE, FALSE, FALSE),
                  team2_elim = if_else(team1_win=='W', TRUE, FALSE, FALSE),
                  game = row_number(),
