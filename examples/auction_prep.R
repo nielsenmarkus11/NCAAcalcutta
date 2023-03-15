@@ -37,6 +37,6 @@ teams <- teams %>% arrange(region, rank)
 players <- c("Mark", "Marko", "Marky", "Markus")
 prior_bracket <- get_tournament_scores_api(year=2022)
 points <- ceiling((sum(prior_bracket$team1_score + prior_bracket$team2_score) * 0.8)/length(players)/50)*50
-start_auction(teams, players, points)
+start_auction(teams, players, points, random_seed = 156)
 
 write.csv(teams,file="inst/extdata/ncaa-teams-2023.csv", row.names = FALSE)
