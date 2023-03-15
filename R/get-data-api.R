@@ -6,12 +6,21 @@ firstDayOfMonth <- function(date, day="Mon", abbreviate=TRUE) {
   d
 }
 
-#' @export
+#' Get live scores from NCAA tournament
+#' 
+#' Get live scores from NCAA tournament for auction and report app scoring.
+#' 
+#' @param league "mens" or "womens"
+#' @param year NCAA tournament year
+#' 
+#' @returns data.frame with 63 games and scores.
 #' 
 #' @importFrom httr GET content
 #' @importFrom dplyr '%>%' mutate select case_when
 #' @importFrom stringr str_split
 #' @importFrom tidyr pivot_wider
+#' 
+#' @export
 
 get_tournament_scores_api <- function(league = 'mens', year = NULL) {
   # Get dates of tournament
@@ -29,7 +38,7 @@ get_tournament_scores_api <- function(league = 'mens', year = NULL) {
   ncaa_out <- data.frame()
   
   game_vars <- c("id", "name", "shortName")
-  team_vars <- c("id", "abbreviation", "displayName", "shortDisplayName")#, "logo", "conferenceId")
+  team_vars <- c("id", "abbreviation", "displayName", "shortDisplayName", "logo", "conferenceId")
   
   for (i in 1:length_df){
     for (j in 1:2){
@@ -46,6 +55,9 @@ get_tournament_scores_api <- function(league = 'mens', year = NULL) {
       names(region_round) <- c('region', 'round_text')
       
       team_vec <- ncaa_json[["events"]][[i]][["competitions"]][[1]][['competitors']][[j]][['team']][team_vars]
+      names(team_vec) <- team_vars
+      if (is.null(team_vec[['logo']])) team_vec[['logo']] <- ""
+      if (is.null(team_vec[['conferenceId']])) team_vec[['conferenceId']] <- "" 
       seed <- ncaa_json[["events"]][[i]][["competitions"]][[1]][['competitors']][[j]][['curatedRank']][['current']]
       score <- ncaa_json[["events"]][[i]][["competitions"]][[1]][['competitors']][[j]][['score']]
       completed <- ncaa_json[['events']][[i]][["status"]][["type"]][["completed"]]
@@ -69,11 +81,11 @@ get_tournament_scores_api <- function(league = 'mens', year = NULL) {
                              round_text == "National Championship"~6)) %>% 
     pivot_wider(names_from = team,
                 names_glue = "team{team}_{.value}",
-                values_from = c(id, seed, score, abbreviation, displayName, shortDisplayName)) %>% 
+                values_from = c(id, seed, score, abbreviation, displayName, shortDisplayName, logo, conferenceId)) %>% 
     mutate(team2_seed = ifelse(round ==1 & team2_seed ==99, 17-team1_seed, team2_seed),
            team1_win = ifelse(completed & team1_score>team2_score, 'W', ''),
            team2_win = ifelse(completed & team1_score<team2_score, 'W', '')) %>% 
-    select(round, region, team1_seed, team2_seed, team1_id, team2_id, team1_score, team2_score)
+    select(round, region, team1_seed, team2_seed, team1_id, team2_id, team1_score, team2_score, team1_logo, team2_logo)
  
   return(bracket) 
 }

@@ -1,3 +1,4 @@
+library(NCAAcalcutta)
 bracket <- get_tournament_scores_api(year=2023)
 team_names <- scrape_teams('mens')
 
