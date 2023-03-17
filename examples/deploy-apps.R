@@ -1,7 +1,7 @@
 library(NCAAcalcutta)
 library(dplyr)
 # Input the 2019 teams and run the auction app
-teams <- import_teams(system.file("extdata", "ncaa-teams-2019.csv", package = "NCAAcalcutta"))
+teams <- import_teams(system.file("extdata", "ncaa-teams-2023.csv", package = "NCAAcalcutta"))
 
 rteams <- randomize_teams(teams, random_seed = 15)
 
@@ -12,11 +12,11 @@ library(NCAAcalcutta)
 # Run the report
 teams <- read.csv("~/../Desktop/teams-out-home.csv")
 teams <- teams %>% 
-  select(-X, -group, -opponent) %>% 
+  select(-X, -opponent) %>% 
   filter(!is.na(bid))
 
 
-results_app(teams, 1175)
+results_app(teams, 1175, 2023)
 
 
 library(rsconnect)
