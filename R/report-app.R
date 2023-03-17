@@ -593,12 +593,42 @@ results_app <- function(auction_results, starting_points, year=NULL){
         
         final_data$team_abbr <- unname(abbreviate(coalesce(final_data$team,''), 16))
         
+        # Fill in missing data
+        seed_order = c(1,16,8,9,5,12,4,13,6,11,3,14,7,10,2,15)
+        regions = levels(final_data$region)
+        round = 1:6
+        fill_bracket <- expand.grid(rank=factor(seed_order, levels = seed_order),
+                                    region=factor(regions, levels = regions),
+                                    round=round)
+        fill_bracket$group <- c(1:64,
+                                rep(1:32, each=2),
+                                rep(1:16, each=4),
+                                rep(1:8, each=8),
+                                rep(1:4, each=16),
+                                rep(1:2, each=32))
+        
+        fill_wo_na <- fill_bracket %>% 
+          inner_join(final_data %>% mutate(rank = factor(rank, levels=seed_order))) %>% 
+          select(round, region, group)
+        
+        fill_w_na <- fill_bracket %>% 
+          anti_join(fill_wo_na) %>% 
+          mutate(region = factor(ifelse(round==6, ifelse(region %in% c("South","East"), "Final Four", "Fina Four A"),
+                                 as.character(region)), levels = c(regions, "Final Four", "Final Four A"))) %>% 
+          group_by(round, region, group) %>% 
+          summarize(rank = factor(min(as.numeric(as.character(rank))), levels=seed_order)) %>% 
+          select(-group)
+                   
         bracket_prep <- final_data %>% 
-          mutate(old_row = row_number(),
-                 region = ifelse(game==ifelse(is.null(year),62,63),'Final Four A',region),
+          filter(rank!=99) %>% 
+          mutate(rank = factor(rank, levels = seed_order)) %>% 
+          bind_rows(fill_w_na) %>% 
+          mutate(region = ifelse(coalesce(game,99)==ifelse(is.null(year),62,63),'Final Four A',region),
                  team_abbr = ifelse(owner==team_owner,
                                     paste0('<span style="color:red;"><b>',team_abbr,'</b></span>'),
-                                    team_abbr))
+                                    team_abbr)) %>% 
+          arrange(round, region, rank) %>% 
+          mutate(old_row = row_number())
         
         translate = read.csv(system.file("extdata", "match.csv", package = "NCAAcalcutta"))
         
