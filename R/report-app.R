@@ -154,6 +154,7 @@ results_app <- function(auction_results, starting_points, year=NULL){
                              region) ) %>% 
           arrange(game1_id, game2_id) %>% 
           select(-game1_id) %>% 
+          arrange(game2_id, seed) %>% 
           mutate(name = paste0('team', rep(1:2,16))) %>% 
           pivot_wider(names_from = name, values_from = c(seed, id), names_glue = "{name}_{.value}") %>% 
           left_join(new_dat %>% rename(team1_pred_score=pred_score, team1_prob_win=pred_win),
@@ -185,6 +186,7 @@ results_app <- function(auction_results, starting_points, year=NULL){
                              region)) %>% 
           arrange(game2_id, game3_id) %>% 
           select(-game2_id) %>% 
+          arrange(game3_id, seed) %>% 
           mutate(name = paste0('team', rep(1:2,8))) %>% 
           pivot_wider(names_from = name, values_from = c(seed, id), names_glue = "{name}_{.value}") %>% 
           left_join(new_dat %>% rename(team1_pred_score=pred_score, team1_prob_win=pred_win),
@@ -216,6 +218,7 @@ results_app <- function(auction_results, starting_points, year=NULL){
                              region)) %>% 
           arrange(game3_id, game4_id) %>% 
           select(-game3_id) %>% 
+          arrange(game4_id, seed) %>% 
           mutate(name = paste0('team', rep(1:2,4))) %>% 
           pivot_wider(names_from = name, values_from = c(seed, id), names_glue = "{name}_{.value}") %>% 
           left_join(new_dat %>% rename(team1_pred_score=pred_score, team1_prob_win=pred_win),
@@ -247,6 +250,7 @@ results_app <- function(auction_results, starting_points, year=NULL){
                       mutate(region="Final Four")) %>% 
           arrange(game4_id, game5_id) %>% 
           select(-game4_id) %>% 
+          arrange(game5_id, seed) %>% 
           mutate(name = paste0('team', rep(1:2,2))) %>% 
           pivot_wider(names_from = name, values_from = c(seed, id), names_glue = "{name}_{.value}") %>% 
           left_join(new_dat %>% rename(team1_pred_score=pred_score, team1_prob_win=pred_win),
@@ -269,8 +273,8 @@ results_app <- function(auction_results, starting_points, year=NULL){
                                             round3 %>% select(-starts_with('game')),
                                             round4 %>% select(-starts_with('game')),
                                             round5 %>% select(-starts_with('game'))) %>% 
-          mutate(team1_score = coalesce(team1_score, team1_pred_score),
-                 team2_score = coalesce(team2_score, team2_pred_score),
+          mutate(team1_score = ifelse(team1_score==0, team1_pred_score, team1_score),
+                 team2_score = ifelse(team2_score==0, team2_pred_score, team2_score),
                  team1_win = ifelse(is.na(team1_win) & is.na(team2_win), team1_pred_win, as.character(team1_win)),
                  team2_win = ifelse(is.na(team1_win) & is.na(team2_win), team2_pred_win, as.character(team2_win)))
         
