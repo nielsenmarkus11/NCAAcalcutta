@@ -273,8 +273,8 @@ results_app <- function(auction_results, starting_points, year=NULL){
                                             round3 %>% select(-starts_with('game')),
                                             round4 %>% select(-starts_with('game')),
                                             round5 %>% select(-starts_with('game'))) %>% 
-          mutate(team1_score = ifelse(team1_score==0, team1_pred_score, team1_score),
-                 team2_score = ifelse(team2_score==0, team2_pred_score, team2_score),
+          mutate(team1_score = ifelse(coalesce(team1_score,0)==0, team1_pred_score, team1_score),
+                 team2_score = ifelse(coalesce(team2_score,0)==0, team2_pred_score, team2_score),
                  team1_win = ifelse(is.na(team1_win) & is.na(team2_win), team1_pred_win, as.character(team1_win)),
                  team2_win = ifelse(is.na(team1_win) & is.na(team2_win), team2_pred_win, as.character(team2_win)))
         
