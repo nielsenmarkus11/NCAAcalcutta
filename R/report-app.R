@@ -317,7 +317,8 @@ results_app <- function(auction_results, starting_points, year=NULL){
         
         final_data <- append_scores %>% 
           bind_rows(winning_team) %>% 
-          mutate(round_exited = if_else(eliminated, round, as.numeric(NA)))
+          mutate(round_exited = if_else(eliminated, round, as.numeric(NA))) %>% 
+          left_join(scores_id %>% mutate(region_orig = region) %>% select(-region, -rank))
         return(final_data)
       })
       
@@ -602,7 +603,7 @@ results_app <- function(auction_results, starting_points, year=NULL){
         regions = levels(final_data$region)
         round = 1:6
         fill_bracket <- expand.grid(rank=factor(seed_order, levels = seed_order),
-                                    region=factor(regions, levels = regions),
+                                    region=factor(regions[1:4], levels = regions),
                                     round=round)
         fill_bracket$group <- c(1:64,
                                 rep(1:32, each=2),
@@ -611,14 +612,16 @@ results_app <- function(auction_results, starting_points, year=NULL){
                                 rep(1:4, each=16),
                                 rep(1:2, each=32))
         
+        fill_bracket$region_orig <- fill_bracket$region
+        fill_bracket$region <- factor(ifelse(fill_bracket$round >=5, 'Final Four', as.character(fill_bracket$region)),
+                                      levels = regions)
+        
         fill_wo_na <- fill_bracket %>% 
           inner_join(final_data %>% mutate(rank = factor(rank, levels=seed_order))) %>% 
           select(round, region, group)
         
         fill_w_na <- fill_bracket %>% 
           anti_join(fill_wo_na) %>% 
-          mutate(region = factor(ifelse(round==6, ifelse(region %in% c("South","East"), "Final Four", "Fina Four A"),
-                                 as.character(region)), levels = c(regions, "Final Four", "Final Four A"))) %>% 
           group_by(round, region, group) %>% 
           summarize(rank = factor(min(as.numeric(as.character(rank))), levels=seed_order)) %>% 
           select(-group)
@@ -627,11 +630,10 @@ results_app <- function(auction_results, starting_points, year=NULL){
           filter(rank!=99) %>% 
           mutate(rank = factor(rank, levels = seed_order)) %>% 
           bind_rows(fill_w_na) %>% 
-          mutate(region = ifelse(coalesce(game,99)==ifelse(is.null(year),62,63),'Final Four A',region),
-                 team_abbr = ifelse(owner==team_owner,
+          mutate(team_abbr = ifelse(owner==team_owner,
                                     paste0('<span style="color:red;"><b>',team_abbr,'</b></span>'),
                                     team_abbr)) %>% 
-          arrange(round, region, rank) %>% 
+          arrange(round, region_orig, rank) %>% 
           mutate(old_row = row_number())
         
         translate = read.csv(system.file("extdata", "match.csv", package = "NCAAcalcutta"))

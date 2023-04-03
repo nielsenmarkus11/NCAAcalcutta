@@ -87,7 +87,7 @@ get_tournament_scores_api <- function(league = 'mens', year = NULL) {
            team2_win = ifelse(completed & team1_score<team2_score, 'W', as.character(NA))) %>% 
     select(game_id, round, region, team1_seed, team2_seed, team1_id, team2_id, team1_score, team2_score, team1_logo, team2_logo,
            team1_displayName, team2_displayName, team1_win, team2_win, team1_conferenceId, team2_conferenceId) %>% 
-    mutate(region = factor(region, levels = c("South","East","Midwest","West")),
+    mutate(region = factor(region, levels = c("South","East","Midwest","West","Final Four")),
            sort_seed = factor(team1_seed, levels=c(1,16,8,9,5,12,4,13,6,11,3,14,7,10,2,15))) %>% 
     arrange(round, region, sort_seed)
  
