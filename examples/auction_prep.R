@@ -1,5 +1,5 @@
 library(NCAAcalcutta)
-bracket <- get_tournament_scores_api(year=2023)
+bracket <- get_tournament_scores_api(year=2024)
 
 library(dplyr)
 teams1 <- bracket %>%
@@ -34,6 +34,7 @@ teams$game_id <- NULL
 
 # teams <- edit(teams)
 teams <- teams %>% arrange(region, rank)
+write.csv(teams, "inst/ncaa-teams-2024.csv")
 # teams <- import_teams(system.file("extdata", "ncaa-teams-2023.csv", package = "NCAAcalcutta"))
 players <- c("Mark", "Marko", "Marky", "Markus")
 prior_bracket <- get_tournament_scores_api(year=2022)
