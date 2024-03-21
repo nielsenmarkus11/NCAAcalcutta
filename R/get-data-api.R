@@ -25,7 +25,7 @@ firstDayOfMonth <- function(date, day="Mon", abbreviate=TRUE) {
 get_tournament_scores_api <- function(league = 'mens', year = NULL) {
   # Get dates of tournament
   date = paste0(year,'-04-01')
-  final_game_date = firstDayOfMonth(paste0(year,'-04-01'), day = "Mon")
+  final_game_date = firstDayOfMonth(paste0(year,'-04-01'), day = "Sun") + 1
   first_game_date = final_game_date - 18
   game_dates = paste0(format(first_game_date, format='%Y%m%d'), '-', format(final_game_date+1, format='%Y%m%d'))
   
