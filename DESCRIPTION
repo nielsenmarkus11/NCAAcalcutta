@@ -23,4 +23,4 @@ Imports:
   xml2,
   httr, 
   bslib
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2

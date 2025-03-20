@@ -30,7 +30,7 @@ get_tournament_scores_api <- function(league = 'mens', year = NULL) {
   game_dates = paste0(format(first_game_date, format='%Y%m%d'), '-', format(final_game_date+1, format='%Y%m%d'))
   
   # Call ESPN API
-  ncaa_json = content(GET(paste0("http://site.api.espn.com/apis/site/v2/sports/basketball/", league, "-college-basketball/scoreboard?dates=", game_dates, "&limit=63")))
+  ncaa_json = content(GET(paste0("http://site.api.espn.com/apis/site/v2/sports/basketball/", league, "-college-basketball/scoreboard?dates=", game_dates, "&groups=50&limit=500")))
   
   # Extract team data
   length_df <- length(ncaa_json[["events"]])
@@ -49,8 +49,10 @@ get_tournament_scores_api <- function(league = 'mens', year = NULL) {
       game2_vec_raw <- str_split(game2_vec, " - ", simplify = TRUE)
       if (length(game2_vec_raw)==3){
         region_round = c(gsub(" Region","", game2_vec_raw[2]), game2_vec_raw[3])
+        tournament = game2_vec_raw[1]
       } else {
         region_round = c("Final Four", game2_vec_raw[2])
+        tournament = "Other"
       }
       names(region_round) <- c('region', 'round_text')
       
@@ -62,7 +64,7 @@ get_tournament_scores_api <- function(league = 'mens', year = NULL) {
       score <- ncaa_json[["events"]][[i]][["competitions"]][[1]][['competitors']][[j]][['score']]
       completed <- ncaa_json[['events']][[i]][["status"]][["type"]][["completed"]]
       
-      combine_vec <- c(game_vec, region_round, team_vec, team=j, seed=seed, score=as.numeric(score), completed=completed)
+      combine_vec <- c(game_vec, region_round, team_vec, team=j, seed=seed, score=as.numeric(score), completed=completed, tournament=tournament)
       
       # convert the list into a dataframe 
       df_loop <- cbind.data.frame(combine_vec)
@@ -73,6 +75,7 @@ get_tournament_scores_api <- function(league = 'mens', year = NULL) {
   }
   
   bracket <- ncaa_out %>% 
+    filter(tournament == "Men's Basketball Championship") %>% 
     mutate(round = case_when(round_text == "1st Round"~1,
                              round_text == "2nd Round"~2,
                              round_text == "Sweet 16"~3,
