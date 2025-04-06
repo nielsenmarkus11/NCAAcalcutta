@@ -52,7 +52,7 @@ get_tournament_scores_api <- function(league = 'mens', year = NULL) {
         tournament = game2_vec_raw[1]
       } else {
         region_round = c("Final Four", game2_vec_raw[2])
-        tournament = "Other"
+        tournament = game2_vec_raw[1]
       }
       names(region_round) <- c('region', 'round_text')
       
